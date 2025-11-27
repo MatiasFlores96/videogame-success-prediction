@@ -24,6 +24,9 @@ wheels/
 .ipynb_checkpoints
 *.ipynb_checkpoints/
 
+# Presentation notebook (private)
+Code/PRESENTACION_TESIS.ipynb
+
 # Environments
 .env
 .venv
