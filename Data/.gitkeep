@@ -1,0 +1,3 @@
+# Este archivo mantiene la carpeta Data en git
+# Los archivos de datos (*.npy, *.json, etc.) están excluidos en .gitignore por ser muy grandes
+# Descarga los datos desde: [URL del dataset si es público]
