@@ -2,7 +2,7 @@
 
 Predicción de popularidad de videojuegos en Steam utilizando diferentes enfoques: colaborativo, contenido, e híbridos.
 
-## 📊 Proyecto de Tesis
+## Proyecto de Tesis
 
 **Objetivo:** Comparar diferentes estrategias de feature engineering para predecir la popularidad (número de reviews) de videojuegos.
 
@@ -15,7 +15,7 @@ Predicción de popularidad de videojuegos en Steam utilizando diferentes enfoque
 
 ---
 
-## 🏆 Resultados Principales
+## Resultados Principales
 
 | Modelo | R² | RMSE | Descripción |
 |--------|-----|------|-------------|
@@ -27,7 +27,7 @@ Predicción de popularidad de videojuegos en Steam utilizando diferentes enfoque
 | M2: Metadata | -0.0875 | 164.17 | Contenido solo (falla) |
 | M5: Tag Embeddings | -18.8602 | 23.82 | Colapso del modelo |
 
-### 💡 Hallazgo Clave:
+### Hallazgo Clave:
 **Las señales colaborativas y semánticas son complementarias, no redundantes.**
 
 - Reviews **solas** fallan (R² = -0.02)
@@ -65,7 +65,7 @@ VG_Recommender/
 
 ---
 
-## 🚀 Pipeline Completo
+## Pipeline Completo
 
 ### 1. Generación de Datasets
 **Notebook:** `01_generate_dataset.ipynb`
@@ -97,7 +97,7 @@ Cada notebook evalúa un enfoque diferente:
 
 ---
 
-## 🔧 Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 - **Python 3.11**
 - **Machine Learning:** XGBoost, scikit-learn
@@ -108,7 +108,7 @@ Cada notebook evalúa un enfoque diferente:
 
 ---
 
-## 📈 Métricas
+## Métricas
 
 ### R² (Coeficiente de Determinación)
 - Proporción de varianza explicada
@@ -122,26 +122,22 @@ Cada notebook evalúa un enfoque diferente:
 - Unidades interpretables
 - Menor es mejor
 
-### ⚠️ Nota sobre M5:
-RMSE = 23.82 (bajo) pero R² = -18.86 (catastrófico)
-→ El modelo colapsó, predice valores similares para todo
-
 ---
 
-## 🎯 Conclusiones
+## Conclusiones
 
 ### 1. Patrones colaborativos son la base
 - RS embeddings (64-dim) explican 64% de la varianza
 - Superan ampliamente a enfoques de contenido puro
 
 ### 2. Contenido SOLO falla, COMBINADO triunfa
-- Reviews solas: R² = -0.02 ❌
-- RS + Reviews: R² = 0.96 ✅
+- Reviews solas: R² = -0.02 
+- RS + Reviews: R² = 0.96 
 - Señales ortogonales (complementarias)
 
 ### 3. No todas las combinaciones funcionan
-- RS + Review embeddings: R² = 0.96 🏆
-- RS + TF-IDF: R² = 0.38 ❌
+- RS + Review embeddings: R² = 0.96 
+- RS + TF-IDF: R² = 0.38 
 - Calidad > Cantidad de features
 
 ### 4. Validación temporal es esencial
@@ -151,7 +147,7 @@ RMSE = 23.82 (bajo) pero R² = -18.86 (catastrófico)
 
 ---
 
-## 📚 Notebooks de Documentación
+## Notebooks de Documentación
 
 - **`RESUMEN_MODELOS.ipynb`**: Análisis exhaustivo de los 7 modelos
 - **`PRESENTACION_TESIS.ipynb`**: Material para reuniones con director
@@ -159,46 +155,14 @@ RMSE = 23.82 (bajo) pero R² = -18.86 (catastrófico)
 
 ---
 
-## 🔮 Trabajo Futuro
+## Trabajo Futuro
 
-1. **Validación adicional:**
-   - Cross-validation temporal con múltiples cutoffs
-   - Análisis de errores por categoría de juegos
-
-2. **Extensiones:**
-   - Features temporales (velocidad de acumulación de reviews)
-   - Señales externas (Twitter, Reddit, streamers)
-   - Deep Learning sobre embeddings
-
-3. **Análisis causal:**
-   - ¿Qué CAUSA popularidad vs qué CORRELACIONA?
-   - Identificar factores confounders
-
-4. **Aplicaciones:**
-   - Sistema de early warning para publishers
-   - Recomendación híbrida para plataformas
-   - Transfer learning a otros dominios (películas, música)
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto es parte de una tesis académica.
 
 ---
 
-## 👤 Autor
-
-Proyecto de Tesis - 2025
-
----
-
-## 🙏 Agradecimientos
-
-- **Dataset:** Australian Gaming Dataset (Steam)
-- **Librerías:** Keras RS, Sentence-Transformers, XGBoost
-- **Inspiración:** Sistemas de recomendación colaborativos y content-based
-
----
-
-**⭐ Si este proyecto te resulta útil, considera darle una estrella!**
