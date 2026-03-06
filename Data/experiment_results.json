@@ -1,0 +1,172 @@
+[
+  {
+    "model_id": "09",
+    "model_name": "RS + Review Text",
+    "features": "RS clean (64d) + Review text (384d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": 0.785694,
+      "rmse_temporal": 26.338389,
+      "mae_temporal": 3.344493,
+      "mape_temporal": 29.647923,
+      "r2_tscv": 0.871922,
+      "r2_tscv_std": 0.057787,
+      "rmse_tscv": 12.203524,
+      "rmse_tscv_std": 5.312181,
+      "r2_kfold": 0.547469,
+      "r2_kfold_std": 0.472373,
+      "rmse_kfold": 57.690571,
+      "rmse_kfold_std": 48.066696
+    },
+    "notes": "cutoff=2016-01-01, train=2621, test=486",
+    "timestamp": "2026-03-05 23:09"
+  },
+  {
+    "model_id": "03",
+    "model_name": "RS Embeddings Only",
+    "features": "RS clean (64d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": 0.543898,
+      "rmse_temporal": 38.424015,
+      "mae_temporal": 5.817402,
+      "mape_temporal": 0.484193,
+      "r2_tscv": 0.616333,
+      "r2_tscv_std": 0.471229,
+      "rmse_tscv": 22.294293,
+      "rmse_tscv_std": 18.913876,
+      "r2_kfold": 0.352957,
+      "r2_kfold_std": 0.288775,
+      "rmse_kfold": 70.99341
+    },
+    "notes": "",
+    "timestamp": "2026-03-05 23:10"
+  },
+  {
+    "model_id": "04",
+    "model_name": "Metadata Only",
+    "features": "Metadata (6d)",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": 0.011343,
+      "rmse_temporal": 56.571093,
+      "mae_temporal": 19.843138,
+      "mape_temporal": 8.348438,
+      "r2_tscv": -0.395625,
+      "r2_tscv_std": 0.558688,
+      "rmse_tscv": 41.418437,
+      "rmse_tscv_std": 21.97508,
+      "r2_kfold": 0.06949,
+      "r2_kfold_std": 0.071983,
+      "rmse_kfold": 90.935676
+    },
+    "notes": "",
+    "timestamp": "2026-03-05 22:46"
+  },
+  {
+    "model_id": "05",
+    "model_name": "RS + Metadata",
+    "features": "RS clean (64d) + Metadata (6d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": 0.792169,
+      "rmse_temporal": 25.937446,
+      "mae_temporal": 4.940371,
+      "mape_temporal": 0.486154,
+      "r2_tscv": 0.407429,
+      "r2_tscv_std": 0.653166,
+      "rmse_tscv": 23.180657,
+      "rmse_tscv_std": 15.121094,
+      "r2_kfold": 0.464846,
+      "r2_kfold_std": 0.207678,
+      "rmse_kfold": 68.603633
+    },
+    "notes": "",
+    "timestamp": "2026-03-05 22:47"
+  },
+  {
+    "model_id": "06",
+    "model_name": "Review Text Emb",
+    "features": "Review text (384d)",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": -0.019984,
+      "rmse_temporal": 57.460395,
+      "mae_temporal": 15.932982,
+      "mape_temporal": 6.170772,
+      "r2_tscv": -0.300069,
+      "r2_tscv_std": 0.181919,
+      "rmse_tscv": 42.170757,
+      "rmse_tscv_std": 24.561263,
+      "r2_kfold": -0.062273,
+      "r2_kfold_std": 0.130997,
+      "rmse_kfold": 93.625741
+    },
+    "notes": "",
+    "timestamp": "2026-03-05 22:51"
+  },
+  {
+    "model_id": "07",
+    "model_name": "Tag Embeddings",
+    "features": "Tag embeddings (384d)",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": -174.996597,
+      "rmse_temporal": 76.25194,
+      "mae_temporal": 14.566626,
+      "mape_temporal": 4.481138,
+      "r2_tscv": -30.834438,
+      "r2_tscv_std": 35.087302,
+      "rmse_tscv": 62.813419,
+      "rmse_tscv_std": 49.18092,
+      "r2_kfold": -0.082805,
+      "r2_kfold_std": 0.117624,
+      "rmse_kfold": 103.642341
+    },
+    "notes": "",
+    "timestamp": "2026-03-05 23:00"
+  },
+  {
+    "model_id": "08",
+    "model_name": "Hybrid Collab-Content",
+    "features": "RS clean (64d) + TF-IDF (100d) + Numeric (2d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": 0.562922,
+      "rmse_temporal": 37.614135,
+      "mae_temporal": 5.531715,
+      "mape_temporal": 0.438692,
+      "r2_tscv": 0.160813,
+      "r2_tscv_std": 1.175931,
+      "rmse_tscv": 33.183206,
+      "rmse_tscv_std": 33.695281,
+      "r2_kfold": 0.410868,
+      "r2_kfold_std": 0.235396,
+      "rmse_kfold": 74.681647
+    },
+    "notes": "",
+    "timestamp": "2026-03-05 23:02"
+  },
+  {
+    "model_id": "10",
+    "model_name": "RS + Reviews + RAWG",
+    "features": "RS clean (64d) + Review text (384d) + RAWG features (12d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": 0.674975,
+      "rmse_temporal": 32.436207,
+      "mae_temporal": 3.636512,
+      "mape_temporal": 30.580266,
+      "r2_tscv": 0.761622,
+      "r2_tscv_std": 0.152436,
+      "rmse_tscv": 20.313887,
+      "rmse_tscv_std": 20.044242,
+      "r2_kfold": 0.512071,
+      "r2_kfold_std": 0.591438,
+      "rmse_kfold": 56.528365,
+      "rmse_kfold_std": 47.957988
+    },
+    "notes": "Ablation: RS=0.9071, 09=0.5648, full=0.6750",
+    "timestamp": "2026-03-05 23:24"
+  }
+]

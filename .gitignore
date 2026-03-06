@@ -41,10 +41,13 @@ Data/*.npy
 Data/*.parquet
 Data/*.pkl
 Data/*.json
+Data/*.jsonl
 Data/*.csv
 
 # Keep directory structure but exclude large files
 !Data/.gitkeep
+# Keep leaderboard results (small JSON with experiment metrics)
+!Data/experiment_results.json
 
 # IDE
 .vscode/
