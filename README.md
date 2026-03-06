@@ -11,7 +11,7 @@ Predicción de popularidad de videojuegos en Steam comparando distintas estrateg
 - 25.458 usuarios
 - 59.305 interacciones
 
-**Metodología:** XGBoost con validación temporal estricta — entrenamiento en juegos lanzados antes de 2017, test en juegos lanzados en 2017 o después.
+**Metodología:** XGBoost con validación temporal estricta — entrenamiento en juegos lanzados antes de 2016, test en juegos lanzados en 2016 o después.
 
 ---
 
@@ -93,7 +93,7 @@ Entrena un modelo Two-Tower con Keras RS (backend JAX). Genera embeddings colabo
 Cada notebook entrena un XGBoost con distintas combinaciones de features y registra métricas en `Data/experiment_results.json` usando `results_tracker.py`.
 
 Evaluación con tres esquemas:
-- **Temporal split** (principal): train pre-2017, test 2017+
+- **Temporal split** (principal): train pre-2016, test 2016+
 - **Time-Series CV** (5 folds)
 - **K-Fold CV** (5 folds, referencia)
 
