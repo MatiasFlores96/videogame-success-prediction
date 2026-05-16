@@ -1,109 +1,24 @@
 [
   {
-    "model_id": "09",
-    "model_name": "RS + Review Text",
-    "features": "RS clean (64d) + Review text (384d)",
-    "embeddings": "clean",
-    "metrics": {
-      "r2_temporal": 0.785694,
-      "rmse_temporal": 26.338389,
-      "mae_temporal": 3.344493,
-      "mape_temporal": 29.647923,
-      "r2_tscv": 0.871922,
-      "r2_tscv_std": 0.057787,
-      "rmse_tscv": 12.203524,
-      "rmse_tscv_std": 5.312181,
-      "r2_kfold": 0.547469,
-      "r2_kfold_std": 0.472373,
-      "rmse_kfold": 57.690571,
-      "rmse_kfold_std": 48.066696
-    },
-    "notes": "cutoff=2016-01-01, train=2621, test=486",
-    "timestamp": "2026-03-05 23:09"
-  },
-  {
-    "model_id": "03",
-    "model_name": "RS Embeddings Only",
-    "features": "RS clean (64d)",
-    "embeddings": "clean",
-    "metrics": {
-      "r2_temporal": 0.543898,
-      "rmse_temporal": 38.424015,
-      "mae_temporal": 5.817402,
-      "mape_temporal": 0.484193,
-      "r2_tscv": 0.616333,
-      "r2_tscv_std": 0.471229,
-      "rmse_tscv": 22.294293,
-      "rmse_tscv_std": 18.913876,
-      "r2_kfold": 0.352957,
-      "r2_kfold_std": 0.288775,
-      "rmse_kfold": 70.99341
-    },
-    "notes": "",
-    "timestamp": "2026-03-05 23:10"
-  },
-  {
-    "model_id": "04",
-    "model_name": "Metadata Only",
-    "features": "Metadata (6d)",
-    "embeddings": "none",
-    "metrics": {
-      "r2_temporal": 0.011343,
-      "rmse_temporal": 56.571093,
-      "mae_temporal": 19.843138,
-      "mape_temporal": 8.348438,
-      "r2_tscv": -0.395625,
-      "r2_tscv_std": 0.558688,
-      "rmse_tscv": 41.418437,
-      "rmse_tscv_std": 21.97508,
-      "r2_kfold": 0.06949,
-      "r2_kfold_std": 0.071983,
-      "rmse_kfold": 90.935676
-    },
-    "notes": "",
-    "timestamp": "2026-03-05 22:46"
-  },
-  {
-    "model_id": "05",
-    "model_name": "RS + Metadata",
-    "features": "RS clean (64d) + Metadata (6d)",
-    "embeddings": "clean",
-    "metrics": {
-      "r2_temporal": 0.792169,
-      "rmse_temporal": 25.937446,
-      "mae_temporal": 4.940371,
-      "mape_temporal": 0.486154,
-      "r2_tscv": 0.407429,
-      "r2_tscv_std": 0.653166,
-      "rmse_tscv": 23.180657,
-      "rmse_tscv_std": 15.121094,
-      "r2_kfold": 0.464846,
-      "r2_kfold_std": 0.207678,
-      "rmse_kfold": 68.603633
-    },
-    "notes": "",
-    "timestamp": "2026-03-05 22:47"
-  },
-  {
     "model_id": "06",
     "model_name": "Review Text Emb",
     "features": "Review text (384d)",
     "embeddings": "none",
     "metrics": {
-      "r2_temporal": -0.019984,
-      "rmse_temporal": 57.460395,
-      "mae_temporal": 15.932982,
-      "mape_temporal": 6.170772,
-      "r2_tscv": -0.300069,
-      "r2_tscv_std": 0.181919,
-      "rmse_tscv": 42.170757,
-      "rmse_tscv_std": 24.561263,
-      "r2_kfold": -0.062273,
-      "r2_kfold_std": 0.130997,
-      "rmse_kfold": 93.625741
+      "r2_temporal": -7.331371307373047e-05,
+      "rmse_temporal": 56.89678712164356,
+      "mae_temporal": 18.22441291809082,
+      "mape_temporal": 8.231388092041016,
+      "r2_tscv": -0.11684532165527343,
+      "r2_tscv_std": 0.10380786242659398,
+      "rmse_tscv": 39.18793251750314,
+      "rmse_tscv_std": 23.194953979623016,
+      "r2_kfold": -0.00012677907943725586,
+      "r2_kfold_std": 0.014414638770749876,
+      "rmse_kfold": 92.66628716318739
     },
     "notes": "",
-    "timestamp": "2026-03-05 22:51"
+    "timestamp": "2026-05-15 22:04"
   },
   {
     "model_id": "07",
@@ -111,20 +26,83 @@
     "features": "Tag embeddings (384d)",
     "embeddings": "none",
     "metrics": {
-      "r2_temporal": -174.996597,
-      "rmse_temporal": 76.25194,
-      "mae_temporal": 14.566626,
-      "mape_temporal": 4.481138,
-      "r2_tscv": -30.834438,
-      "r2_tscv_std": 35.087302,
-      "rmse_tscv": 62.813419,
-      "rmse_tscv_std": 49.18092,
-      "r2_kfold": -0.082805,
-      "r2_kfold_std": 0.117624,
-      "rmse_kfold": 103.642341
+      "r2_temporal": -127.24208068847656,
+      "rmse_temporal": 65.08996928530924,
+      "mae_temporal": 14.090126991271973,
+      "mape_temporal": 4.601202011108398,
+      "r2_tscv": -22.551623153686524,
+      "r2_tscv_std": 26.19339588813785,
+      "rmse_tscv": 53.787453442697014,
+      "rmse_tscv_std": 36.58010583062472,
+      "r2_kfold": -0.07099702358245849,
+      "r2_kfold_std": 0.1251420070307649,
+      "rmse_kfold": 103.1146625481625
     },
     "notes": "",
-    "timestamp": "2026-03-05 23:00"
+    "timestamp": "2026-05-15 22:10"
+  },
+  {
+    "model_id": "04",
+    "model_name": "Metadata Only",
+    "features": "Metadata (6d)",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": 0.06534314155578613,
+      "rmse_temporal": 55.00446315342851,
+      "mae_temporal": 19.623729705810547,
+      "mape_temporal": 8.32153606414795,
+      "r2_tscv": -0.5162669539451599,
+      "r2_tscv_std": 0.7571405034610738,
+      "rmse_tscv": 42.44299250171032,
+      "rmse_tscv_std": 22.032940352367667,
+      "r2_kfold": 0.05989717245101929,
+      "r2_kfold_std": 0.07386896077479761,
+      "rmse_kfold": 91.30543543300678
+    },
+    "notes": "",
+    "timestamp": "2026-05-16 19:27"
+  },
+  {
+    "model_id": "03",
+    "model_name": "RS Embeddings Only",
+    "features": "RS clean (64d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": 0.524795413017273,
+      "rmse_temporal": 39.220412066374955,
+      "mae_temporal": 5.839241981506348,
+      "mape_temporal": 0.5099034905433655,
+      "r2_tscv": 0.6650569796562195,
+      "r2_tscv_std": 0.41621095982677625,
+      "rmse_tscv": 20.053923213140997,
+      "rmse_tscv_std": 16.398201643380172,
+      "r2_kfold": 0.3747240424156189,
+      "r2_kfold_std": 0.1877812998950472,
+      "rmse_kfold": 72.06100575677418
+    },
+    "notes": "",
+    "timestamp": "2026-05-16 20:15"
+  },
+  {
+    "model_id": "05",
+    "model_name": "RS + Metadata",
+    "features": "RS clean (64d) + Metadata (6d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": -0.2096167802810669,
+      "rmse_temporal": 62.5742625212485,
+      "mae_temporal": 9.225774765014648,
+      "mape_temporal": 0.4982670247554779,
+      "r2_tscv": -0.9297997236251831,
+      "r2_tscv_std": 1.449847596289261,
+      "rmse_tscv": 45.67139286934116,
+      "rmse_tscv_std": 27.542179762297085,
+      "r2_kfold": -0.3641864538192749,
+      "r2_kfold_std": 1.0290195762210481,
+      "rmse_kfold": 81.82305115575865
+    },
+    "notes": "",
+    "timestamp": "2026-05-16 20:16"
   },
   {
     "model_id": "08",
@@ -132,20 +110,42 @@
     "features": "RS clean (64d) + TF-IDF (100d) + Numeric (2d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": 0.562922,
-      "rmse_temporal": 37.614135,
-      "mae_temporal": 5.531715,
-      "mape_temporal": 0.438692,
-      "r2_tscv": 0.160813,
-      "r2_tscv_std": 1.175931,
-      "rmse_tscv": 33.183206,
-      "rmse_tscv_std": 33.695281,
-      "r2_kfold": 0.410868,
-      "r2_kfold_std": 0.235396,
-      "rmse_kfold": 74.681647
+      "r2_temporal": 0.4488704800605774,
+      "rmse_temporal": 42.23754554784463,
+      "mae_temporal": 5.8804030418396,
+      "mape_temporal": 0.4322602152824402,
+      "r2_tscv": 0.3747074007987976,
+      "r2_tscv_std": 1.125626527346809,
+      "rmse_tscv": 22.609850992154406,
+      "rmse_tscv_std": 23.184585070697125,
+      "r2_kfold": 0.44099334478378294,
+      "r2_kfold_std": 0.2985144627596003,
+      "rmse_kfold": 71.31134323625443
     },
     "notes": "",
-    "timestamp": "2026-03-05 23:02"
+    "timestamp": "2026-05-16 20:19"
+  },
+  {
+    "model_id": "09",
+    "model_name": "RS + Review Text",
+    "features": "RS clean (64d) + Review text (384d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": 0.9066351652145386,
+      "rmse_temporal": 17.384553985798895,
+      "mae_temporal": 2.9987761974334717,
+      "mape_temporal": 28.151121695333774,
+      "r2_tscv": 0.8632806897163391,
+      "r2_tscv_std": 0.0978032035435056,
+      "rmse_tscv": 15.20990261706458,
+      "rmse_tscv_std": 15.505330694914914,
+      "r2_kfold": 0.3030220866203308,
+      "r2_kfold_std": 0.12473514616343326,
+      "rmse_kfold": 78.79844134749325,
+      "rmse_kfold_std": 59.38556792357647
+    },
+    "notes": "cutoff=2016-01-01, train=2621, test=486",
+    "timestamp": "2026-05-16 20:27"
   },
   {
     "model_id": "10",
@@ -153,20 +153,20 @@
     "features": "RS clean (64d) + Review text (384d) + RAWG features (12d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": 0.674975,
-      "rmse_temporal": 32.436207,
-      "mae_temporal": 3.636512,
-      "mape_temporal": 30.580266,
-      "r2_tscv": 0.761622,
-      "r2_tscv_std": 0.152436,
-      "rmse_tscv": 20.313887,
-      "rmse_tscv_std": 20.044242,
-      "r2_kfold": 0.512071,
-      "r2_kfold_std": 0.591438,
-      "rmse_kfold": 56.528365,
-      "rmse_kfold_std": 47.957988
+      "r2_temporal": 0.9378973841667175,
+      "rmse_temporal": 14.178388047379375,
+      "mae_temporal": 2.5196897983551025,
+      "mape_temporal": 29.282757431122857,
+      "r2_tscv": 0.7678287863731384,
+      "r2_tscv_std": 0.20408579793878193,
+      "rmse_tscv": 16.3551006565042,
+      "rmse_tscv_std": 12.632282244984008,
+      "r2_kfold": 0.5071865677833557,
+      "r2_kfold_std": 0.09398522235917385,
+      "rmse_kfold": 68.10258148740249,
+      "rmse_kfold_std": 54.73921582314449
     },
-    "notes": "Ablation: RS=0.9071, 09=0.5648, full=0.6750",
-    "timestamp": "2026-03-05 23:24"
+    "notes": "Ablation: RS=0.6294, 09=0.8452, full=0.9379",
+    "timestamp": "2026-05-16 20:36"
   }
 ]
