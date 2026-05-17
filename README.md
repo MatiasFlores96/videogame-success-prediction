@@ -57,29 +57,29 @@ Ver detalles completos en [EXPERIMENTS.md](EXPERIMENTS.md).
 
 | ID | Modelo | Features | R² Temporal | RMSE Temporal | R² TSCV | RMSE TSCV |
 |----|--------|----------|:-----------:|:-------------:|:-------:|:---------:|
-| 03 | RS Embeddings Only | RS clean (64d) | −0.027 | 57.66 | 0.770 | 19.50 |
-| 04 | Metadata Only | Steam metadata (6d) | +0.065 | 55.00 | −0.516 | 42.44 |
-| 05 | RS + Metadata | RS (64d) + Metadata (6d) | −0.024 | 57.57 | 0.760 | 18.66 |
-| 06 | Review Text Emb | BERT reviews (384d) | ~0.000 | 56.90 | −0.117 | 39.19 |
-| 07 | Tag Embeddings | BERT tags (384d) | −127.24 | 65.09 | −22.55 | 53.79 |
-| 08 | Hybrid Collab-Content | RS (64d) + TF-IDF (100d) + Numeric (2d) | −0.024 | 57.57 | **0.841** | **16.76** |
-| 09 | RS + Review Text | RS (64d) + BERT reviews (384d) | −0.022 | 57.53 | 0.680 | 24.34 |
-| 10 | RS + Reviews + RAWG | RS (64d) + BERT (384d) + RAWG (12d) | −0.017 | 57.38 | 0.767 | 20.83 |
-| 11a | RS + Dev Reputation | RS (64d) + dev_rep (1d) | −0.025 | 57.61 | −0.808 | 42.71 |
-| 11b | Hybrid + Dev Reputation | RS (64d) + TF-IDF (100d) + Num (2d) + dev_rep | −0.024 | 57.57 | 0.722 | 22.73 |
-| 12 | Stage2 Content | TF-IDF (100d) + Steam (2d) + RAWG (12d) + dev_rep | **+0.076** | **54.69** | −5.03 | 57.12 |
+| 03 | RS Embeddings Only | RS clean (64d) | −0.018 | 57.42 | 0.886 | 14.28 |
+| 04 | Metadata Only | Steam metadata (6d) | +0.057 | 55.24 | −0.214 | 39.44 |
+| 05 | RS + Metadata | RS (64d) + Metadata (6d) | −0.016 | 57.35 | 0.889 | 14.24 |
+| 06 | Review Text Emb | BERT reviews (384d) | −0.011 | 57.20 | −0.172 | 39.51 |
+| 07 | Tag Embeddings | BERT tags (384d) | −6.93 | — | −3.776 | — |
+| 08 | Hybrid Collab-Content | RS (64d) + TF-IDF (100d) + Numeric (2d) | −0.024 | 57.57 | **0.856** | **16.20** |
+| 09 | RS + Review Text | RS (64d) + BERT reviews (384d) | −0.021 | 57.50 | 0.873 | 14.01 |
+| 10 | RS + Reviews + RAWG | RS (64d) + BERT (384d) + RAWG (12d) | −0.016 | 57.36 | 0.863 | 14.76 |
+| 11a | RS + Dev Reputation | RS (64d) + dev_rep (1d) | −0.026 | 57.62 | 0.778 | 20.37 |
+| 11b | Hybrid + Dev Reputation | RS (64d) + TF-IDF (100d) + Num (2d) + dev_rep | −0.016 | 57.36 | 0.858 | 16.25 |
+| 12 | Stage2 Content | TF-IDF (100d) + Steam (2d) + RAWG (12d) + dev_rep | **+0.074** | **54.76** | 0.469 | 26.37 |
 
 > Los R² temporales negativos en modelos RS indican cold-start: los 486 juegos post-2016 no tienen embeddings entrenados.
 
 ### Modelos con Log-Transform del Target — log(1+reviews)
 
-| ID | Modelo | R² Temporal (log) | RMSE Temporal (log) | R² TSCV (log) | R² original back-transform |
-|----|--------|:-----------------:|:-------------------:|:-------------:|:-------------------------:|
-| 13a | RS Only | −0.386 | 1.150 | 0.932 | −0.027 |
-| 13b | Hybrid RS+TF-IDF | −0.299 | 1.113 | 0.928 | −0.025 |
-| **13c** | **Stage2 Content** | **+0.254** | **0.844** | **0.757** | +0.060 |
+| ID | Modelo | R² Temporal (orig) | R² TSCV (log) | RMSE TSCV (log) | Nota |
+|----|--------|:------------------:|:-------------:|:---------------:|------|
+| 13a | RS Only | −0.026 | 0.937 | 0.275 | Cold-start no mejora |
+| **13b** | **Hybrid RS+TF-IDF** | **−0.025** | **0.940** | **0.268** | **Mejor TSCV del proyecto** |
+| 13c | Stage2 Content | +0.050 | 0.754 | 0.547 | Log no supera lineal en temporal |
 
-> El log-transform no resuelve el cold-start para modelos RS. Para Stage2 Content (13c), el R²_log=+0.254 es el mejor resultado temporal del proyecto.
+> El log-transform no resuelve el cold-start. Para TSCV mejora a 0.940 (13b), pero Stage2 log (13c) es peor que el lineal (12: R²=+0.074). El resultado previo de 13c (R²_log=0.254) estaba inflado por leakage de TF-IDF — corregido.
 
 ---
 
@@ -90,8 +90,8 @@ Los 486 juegos post-2016 no aparecen en el entrenamiento del Two-Tower. Sus embe
 
 ### 2. RS Embeddings son Superiores Within-Distribution
 En el régimen pre-2016 donde todos los juegos tienen embeddings entrenados, la diferencia es contundente:
-- **Modelo 08** (Hybrid RS): TSCV R² = **0.841**, RMSE = 16.76
-- **Metadata Only** (sin RS): TSCV R² = **−0.516**, RMSE = 42.44
+- **Modelos RS** (03, 08, 09, 10): TSCV R² = **0.856–0.889**
+- **Metadata Only** (sin RS): TSCV R² = **−0.214**, RMSE = 39.44
 
 La hipótesis central se confirma: el espacio colaborativo captura señal que el contenido no puede replicar.
 
@@ -106,17 +106,17 @@ Conclusión: No existe mapping aprendible entre el espacio de contenido y el esp
 ### 4. Developer Reputation Introduce Leakage en TSCV
 La reputación del desarrollador, calculada sobre todos los juegos pre-2016, usa información futura para las ventanas anteriores del TSCV. Resultado: TSCV R² cae de +0.770 a **−0.808** al añadirla sin control. En Stage 2 (contenido, sin TSCV relevante) sí aporta marginalmente.
 
-### 5. Log-Transform Mejora la Predicción Estructuralmente
-Aplicar log(1+y) mejora el ajuste porque el target tiene una distribución de potencia:
-- TSCV: 0.841 → 0.928 para el Hybrid RS (13b)
-- **Stage2**: temporal R² +0.076 (lineal) → **+0.254 (log)** — mejor resultado del proyecto
-- TSCV R²=0.757 ≈ KFold R²=0.724 para 13c → sin overfitting
+### 5. Log-Transform Mejora TSCV pero No el Cold-Start
+El log(1+y) como target mejora la predicción within-distribution:
+- TSCV: 0.856 → **0.940** para Hybrid RS+log (13b) — mejor TSCV del proyecto
+- Sin embargo, Stage2 + log (13c) obtiene R²=+0.050 temporal, **inferior** al Stage2 lineal (12: R²=+0.074)
+- El resultado anterior (R²_log=0.254 para 13c) era un artefacto del leakage de TF-IDF — corregido
 
 ### 6. Sistema de Dos Etapas — Mejor Compromiso Práctico
 | Etapa | Modelo | Escenario | Métrica |
 |-------|--------|-----------|---------|
-| **Stage 1** | RS embeddings (Modelo 08 / 13b) | Juegos con historial conocido | TSCV R²=0.841–0.932 |
-| **Stage 2** | TF-IDF + RAWG + Steam + dev_rep + log (Modelo 13c) | Juegos nuevos (cold-start) | Temporal R²_log=+0.254 |
+| **Stage 1** | RS embeddings (Modelo 08 / 13b) | Juegos con historial conocido | TSCV R²=0.856–0.940 |
+| **Stage 2** | Stage2 Content lineal (Modelo 12) | Juegos nuevos (cold-start) | Temporal R²=**+0.074** |
 
 ---
 
@@ -158,15 +158,15 @@ Aplicar log(1+y) mejora el ajuste porque el target tiene una distribución de po
 
 ## Conclusiones
 
-1. **La hipótesis se confirma within-distribution.** RS embeddings dominan cuando existe historial: TSCV R²=0.841 vs −0.516 para metadata pura. El espacio colaborativo captura patrones de consumo colectivo que ninguna descripción de contenido replica.
+1. **La hipótesis se confirma within-distribution.** RS embeddings dominan cuando existe historial: TSCV R²=0.856–0.889 vs −0.214 para metadata pura. El espacio colaborativo captura patrones de consumo colectivo que ninguna descripción de contenido replica.
 
 2. **El cold-start es una limitación estructural, no de features.** Los espacios colaborativo y de contenido son ortogonales (cosine sim=0.064). No existe mapping aprendible entre ambos con los datos disponibles.
 
-3. **El sistema de dos etapas es el mejor compromiso práctico.** Stage 1 (RS) para juegos conocidos + Stage 2 (contenido + log-transform) para juegos nuevos = cobertura completa con las mejores métricas en cada régimen.
+3. **El sistema de dos etapas es el mejor compromiso práctico.** Stage 1 (RS, TSCV R²=0.856) para juegos conocidos + Stage 2 (contenido lineal, temporal R²=+0.074) para juegos nuevos = cobertura completa.
 
-4. **El log-transform del target es una mejora metodológica significativa.** Dado el target de distribución de potencia, predecir en escala logarítmica es más adecuado. Stage 2 + log alcanza R²_log=+0.254 temporal — el mejor resultado del proyecto para el escenario de juegos nuevos.
+4. **El log-transform mejora TSCV pero no el cold-start.** Predecir en escala logarítmica mejora el Stage 1 hasta TSCV R²=0.940, pero Stage2 + log (R²=+0.050) es inferior al Stage2 lineal (R²=+0.074).
 
-5. **Validación temporal estricta es indispensable.** El TSCV y el split temporal revelan dinámicas muy distintas. Evaluar solo con K-Fold hubiera dado una imagen engañosamente optimista (KFold R²=0.85 para RS vs temporal R²=−0.02).
+5. **Validación temporal estricta es indispensable.** El TSCV y el split temporal revelan dinámicas muy distintas. Evaluar solo con K-Fold hubiera dado una imagen engañosamente optimista (KFold R²=0.45 para RS vs temporal R²=−0.02).
 
 ---
 

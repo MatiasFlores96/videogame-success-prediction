@@ -17,88 +17,90 @@ Tesis de Maestría en Ciencia de Datos
 
 ## Correcciones Críticas Aplicadas
 
-### Leakage Temporal en Two-Tower (encontrado y corregido)
+### 1. Leakage Temporal en Two-Tower
 El Two-Tower original se entrenaba con TODAS las interacciones incluyendo juegos post-2016.  
-Esto inflaba los embeddings de los juegos del test set con señal de sus propias interacciones.
+**Fix**: Se filtró el entrenamiento a interacciones pre-2016 (`cutoff = 2016-01-01`).  
+**Impacto**: Los resultados del README original (R²≈0.79) eran inflados.
 
-**Fix**: Se filtró el entrenamiento del Two-Tower a solo interacciones de juegos pre-2016 (`_cutoff = 2016-01-01`).  
-Notebook: `02_model_keras_rs.ipynb` — celda con filtro anti-leakage.
+### 2. TF-IDF Fiteado en Todos los Juegos
+Los vectorizadores TF-IDF en los modelos 08, 11b, 12, 13b, 13c se fiteaban sobre todos los juegos (incluyendo post-2016), incorporando información de frecuencia de tags del test set.  
+**Fix**: TF-IDF ahora se fitea solo sobre juegos pre-2016 y se transforma sobre todos los juegos.  
+**Impacto**: El R²_log del Modelo 13c bajó de 0.254 → 0.039. El resultado anterior estaba inflado por leakage de TF-IDF.
 
-**Impacto**: Los resultados del README original (R²≈0.79) eran inflados. Los resultados reales post-fix están en esta tabla.
-
-### Bug de Archivo Stale
-`item_embeddings_rs_clean.npy` era una versión antigua del 03/03/2026 (pre-fix).  
-**Fix**: Sobreescrito con el embedding post-fix. Notebook 02 actualizado para guardar ambos archivos.
+### 3. Optuna Split Sin Orden Temporal
+El 80/20 interno de Optuna para tuneo de hiperparámetros dividía `X_train` por posición (no por fecha), mezclando juegos de distintas épocas.  
+**Fix**: `X_train` y `y_train` ahora se ordenan por fecha de lanzamiento antes del split de Optuna.  
+**Impacto**: TSCV mejoró en todos los modelos (ej: 03: 0.770→0.886). Modelo 11a TSCV pasó de -0.808→+0.778 (la "catástrofe" era un artefacto del bug). Modelo 12 TSCV pasó de -5.03→+0.469.
 
 ---
 
-## Tabla de Resultados Completa
+## Tabla de Resultados Completa (post-fix, versión final)
 
-| ID  | Modelo                        | Features                                          | R² Temporal | RMSE  | R² TSCV | Nota |
-|-----|-------------------------------|---------------------------------------------------|-------------|-------|---------|------|
-| 03  | RS Embeddings Only            | RS clean (64d)                                    | -0.027      | 57.66 | 0.770   | Baseline RS |
-| 04  | Metadata Only                 | Metadata Steam (6d)                               | **+0.065**  | 55.00 | -0.516  | Mejor temporal lineal |
-| 05  | RS + Metadata                 | RS (64d) + Metadata (6d)                          | -0.024      | 57.57 | 0.760   | |
-| 06  | Review Text Emb               | Review text BERT (384d)                           | ~0.000      | 56.90 | -0.117  | |
-| 07  | Tag Embeddings                | Tag embeddings (384d)                             | -127.24     | 65.09 | -22.55  | Muy inestable |
-| 08  | Hybrid Collab-Content         | RS (64d) + TF-IDF (100d) + Numeric (2d)           | -0.024      | 57.57 | **0.841** | Mejor TSCV |
-| 09  | RS + Review Text              | RS (64d) + Review text (384d)                     | -0.022      | 57.53 | 0.680   | |
-| 10  | RS + Reviews + RAWG           | RS (64d) + Review (384d) + RAWG (12d)             | -0.017      | 57.38 | 0.767   | |
-| 11a | RS + Dev Reputation           | RS (64d) + dev_rep (1d)                           | -0.025      | 57.61 | -0.808  | dev_rep rompe TSCV (leakage interno) |
-| 11b | Hybrid + Dev Reputation       | RS (64d) + TF-IDF (100d) + Num (2d) + dev_rep    | -0.024      | 57.57 | 0.722   | Mínima diferencia |
-| 12  | Two-Stage: Content Model      | TF-IDF (100d) + Steam (2d) + RAWG (12d) + dev_rep| **+0.076**  | 54.69 | -5.03   | Stage 2 del sistema dos-etapas |
-| 13a | RS Only (log target)          | RS clean (64d) [log(1+y)]                         | -0.386 (log) | 1.150 | 0.932 (log) | R²_orig=-0.027, cold-start no mejora |
-| 13b | Hybrid (log target)           | RS+TF-IDF+Numeric [log(1+y)]                      | -0.299 (log) | 1.113 | 0.928 (log) | R²_orig=-0.025, cold-start no mejora |
-| 13c | Stage2 Content (log target)   | TF-IDF+Steam+RAWG+dev_rep [log(1+y)]              | **+0.254 (log)** | 0.844 | 0.757 (log) | **Mejor temporal del proyecto** |
+| ID  | Modelo                        | Features                                          | R² Temporal | RMSE Temporal | R² TSCV | RMSE TSCV | Nota |
+|-----|-------------------------------|---------------------------------------------------|:-----------:|:-------------:|:-------:|:---------:|------|
+| 03  | RS Embeddings Only            | RS clean (64d)                                    | −0.018      | 57.42 | **0.886** | 14.28 | Baseline RS |
+| 04  | Metadata Only                 | Steam metadata (6d)                               | +0.057      | 55.24 | −0.214 | 39.44 | |
+| 05  | RS + Metadata                 | RS (64d) + Metadata (6d)                          | −0.016      | 57.35 | 0.889 | 14.24 | |
+| 06  | Review Text Emb               | BERT reviews (384d)                               | −0.011      | 57.20 | −0.172 | 39.51 | |
+| 07  | Tag Embeddings                | BERT tags (384d)                                  | −6.93       | 16.19* | −3.776 | 24.18 | Inestable (RMSE baja por colapso) |
+| 08  | Hybrid Collab-Content         | RS (64d) + TF-IDF (100d) + Numeric (2d)           | −0.024      | 57.57 | 0.856 | 16.20 | **Mejor TSCV lineal** |
+| 09  | RS + Review Text              | RS (64d) + BERT reviews (384d)                    | −0.021      | 57.50 | 0.873 | 14.01 | |
+| 10  | RS + Reviews + RAWG           | RS (64d) + BERT (384d) + RAWG (12d)               | −0.016      | 57.36 | 0.863 | 14.76 | |
+| 11a | RS + Dev Reputation           | RS (64d) + dev_rep (1d)                           | −0.026      | 57.62 | 0.778 | 20.37 | dev_rep no aporta |
+| 11b | Hybrid + Dev Reputation       | RS (64d) + TF-IDF (100d) + Num (2d) + dev_rep    | −0.016      | 57.36 | 0.858 | 16.25 | |
+| 12  | Stage2 Content                | TF-IDF (100d) + Steam (2d) + RAWG (12d) + dev_rep| **+0.074**  | **54.76** | 0.469 | 26.37 | **Mejor temporal lineal** |
+| 13a | RS Only (log target)          | RS clean (64d) [log(1+y)]                         | −0.026 (orig) | — | **0.937** (log) | 0.275 | TSCV log mejor que lineal |
+| 13b | Hybrid (log target)           | RS+TF-IDF+Numeric [log(1+y)]                      | −0.025 (orig) | — | **0.940** (log) | 0.268 | **Mejor TSCV absoluto** |
+| 13c | Stage2 Content (log target)   | TF-IDF+Steam+RAWG+dev_rep [log(1+y)]              | +0.050 (orig) | 55.43 | 0.754 (log) | 0.547 | Log no supera lineal en temporal |
 
-> Todos los R²_temporal negativos indican predicción peor que predecir la media — producto del cold-start.
+> *Modelo 07: RMSE temporal aparentemente bajo porque el modelo colapsa prediciendo valores pequeños constantemente (R²=-6.93 confirma el colapso).
 
 ---
 
 ## Hallazgos Clave
 
-### 1. El Cold-Start Degrada los RS Embeddings
-Los juegos post-2016 (486 test items) no aparecen en el entrenamiento del Two-Tower.  
-Sus embeddings son vectores aleatorios inicializados pero no entrenados.  
-→ El XGBoost no puede extraer señal útil de ruido aleatorio.  
-→ Todos los modelos con RS embeddings obtienen R²≈-0.02 en temporal.
+### 1. Cold-Start Degrada los RS Embeddings
+Los 486 juegos post-2016 no aparecen en el entrenamiento del Two-Tower. Sus embeddings son vectores no entrenados.  
+→ Todos los modelos con RS obtienen R²≈−0.02 en temporal (peor que predecir la media).
 
-### 2. El Espacio Colaborativo es Ortogonal al de Contenido
-Experimento en `02b_cold_start_embeddings.ipynb`:
-- Similaridad coseno en espacio de features (tags, géneros): **0.987** entre vecinos más cercanos
-- Similaridad coseno en espacio de embeddings RS: **0.064** para los mismos juegos
-- k-NN (k=10) para inferir embeddings RS desde contenido: R²CV = -0.085 (peor que no hacer nada)
-
-**Implicación**: No existe mapping aprendible entre contenido y embeddings colaborativos con los datos disponibles.
-
-### 3. RS Embeddings Funcionan Bien Within-Distribution
-TSCV evalúa dentro del régimen pre-2016 donde todos los juegos tienen embeddings entrenados.  
-- Modelo 08: TSCV R² = **0.841**
-- Modelo 03: TSCV R² = **0.770**
-- Metadata Only: TSCV R² = **-0.516** (embeddings son superiores dentro de distribución)
+### 2. RS Embeddings Superiores Within-Distribution
+En el régimen pre-2016 donde todos los juegos tienen embeddings entrenados:
+- **Modelo 08** (Hybrid RS+TF-IDF): TSCV R² = **0.856**, RMSE = 16.20
+- **Modelo 09** (RS+Reviews): TSCV R² = **0.873**, RMSE = 14.01
+- **Metadata Only**: TSCV R² = **−0.214** (muy inferior)
 
 La hipótesis de la tesis se **confirma within-distribution** y **falla out-of-distribution** por cold-start.
 
-### 4. Developer Reputation como Feature
-`developer_reputation.npy`: promedio histórico de reviews de juegos pre-2016 por desarrollador.
-- 2217 / 3682 juegos tienen reputación > 0
-- Mean = 20.36 reviews, top developer = Hidden Path Entertainment (1881)
-- Resultado: No mejora temporal R² significativamente (+0.002 sobre baseline)
-- **Problema**: La dev_rep calculada sobre todos los juegos pre-2016 introduce leakage en TSCV (usa info futura de cada ventana)
+### 3. El Espacio Colaborativo es Ortogonal al de Contenido
+Análisis en `02b_cold_start_embeddings.ipynb`:
+- Cosine similarity en features (tags, géneros): **0.987** entre vecinos más cercanos
+- Cosine similarity en RS: **0.064** para los mismos pares
+- k-NN (k=10) para inferir embeddings RS desde contenido: R²CV = **−0.085**
 
-### 5. Sistema de Dos Etapas
-**Stage 1** (juegos con historial): RS embeddings → TSCV R² = 0.841 (lineal), 0.932 (log-target)  
-**Stage 2** (juegos nuevos): TF-IDF + RAWG + Steam + dev_rep → temporal R²_log = **0.254**  
+El cold-start es un problema estructural.
 
-Stage 2 supera el baseline de metadata pura (+0.011 sobre Modelo 04 en lineal; +0.189 en log-space).  
-El RAWG contribuye principalmente via **metacritic**, **playtime** y **rawg_ratings_count**.
+### 4. Developer Reputation — Resultado Revisado
+Con el fix del sort de Optuna, el TSCV de dev_rep pasó de -0.808 a **+0.778** para modelo 11a.  
+La "catástrofe" era un artefacto del bug de sort (Optuna veía juegos futuros durante validación).  
+Conclusión real: dev_rep no mejora significativamente sobre RS solo (11a: 0.778 vs 03: 0.886).
+
+### 5. Sistema de Dos Etapas — Resultados Finales
+**Stage 1** (juegos con historial pre-2016): RS embeddings → TSCV R²=0.856-0.940  
+**Stage 2** (juegos nuevos post-2016): TF-IDF + RAWG + Steam + dev_rep → temporal R²=**+0.074**
+
+Stage 2 supera el baseline de metadata pura (0.057) pero la ventaja es modest (+0.017).  
+TSCV de Stage 2 = 0.469 (positivo, no catastrófico como antes del fix del sort).
 
 ### 6. Log-Transform del Target
-Aplicar log(1+y) al target mejora considerablemente la calidad de la predicción:
-- **RS models (Stage 1)**: TSCV R² sube de 0.841 → 0.932 con log-target
-- **Stage 2 content**: temporal R²_log = +0.254 (vs +0.076 lineal) — el mejor resultado temporal del proyecto
-- **Cold-start no se resuelve**: los modelos RS siguen siendo negativos en temporal (log-space), porque el problema es de embeddings sin entrenar, no de escala del target
-- **Consistencia**: 13c TSCV R²=0.757 ≈ KFold R²=0.724 → sin overfitting, el modelo generaliza bien
+El log-transform mejora el TSCV within-distribution para modelos RS:
+- Modelo 13b (Hybrid+log): TSCV R² = **0.940** (mejor resultado absoluto en TSCV)
+- Modelo 13a (RS+log): TSCV R² = **0.937**
+
+Sin embargo, para el Stage 2 (cold-start), el log-transform **no mejora** sobre el modelo lineal:
+- Modelo 12 (lineal): temporal R² = **+0.074**, RMSE = 54.76
+- Modelo 13c (log): temporal R² = **+0.050** (back-transformado), RMSE = 55.43
+
+La mejora espectacular anteriormente reportada (R²_log=0.254) era un artefacto del leakage de TF-IDF.
 
 ---
 
@@ -138,15 +140,22 @@ Aplicar log(1+y) al target mejora considerablemente la calidad de la predicción
 
 ## Interpretación para la Tesis
 
-**Argumento central (sostenible)**:
-> Los embeddings de CF capturan señal colaborativa que supera a las features de contenido *dentro de distribución* (TSCV R²=0.84 vs -0.52 para metadata). Sin embargo, ante el problema de cold-start para juegos nuevos, esta ventaja desaparece. Un sistema de dos etapas que use CF para juegos conocidos y contenido enriquecido para nuevos representa el mejor compromiso práctico.
+**Argumento central (sostenible post-fix)**:
+> Los embeddings de CF capturan señal colaborativa que supera a las features de contenido *dentro de distribución* (TSCV R²=0.856-0.940 vs −0.214 para metadata sola). El cold-start para juegos nuevos es un problema estructural: el espacio colaborativo y de contenido son ortogonales (cosine sim=0.064), haciendo imposible una aproximación eficiente. Un sistema de dos etapas — CF para juegos conocidos, contenido enriquecido para nuevos — es el mejor compromiso práctico.
 
-**Limitaciones honestas a mencionar**:
-- El target (`total_reviews`) es una muestra sesgada: usuarios australianos que escribieron reviews, no ventas globales
-- La distribución del target es extremadamente sesgada (la mayoría de juegos tienen <20 reviews, máximo 3759)
-- El cold-start es inevitable con datos colaborativos puros: los juegos nuevos no tienen interacciones
-- El período de test (post-2016) coincide con un crecimiento explosivo de Steam, cambiando la distribución subyacente
+**Limitaciones honestas**:
+- El target (`total_reviews`) es una muestra sesgada: usuarios australianos que escribieron reviews
+- Distribución extremadamente sesgada (mayoría <20 reviews, máximo 3.759)
+- Cold-start inevitable con datos colaborativos puros
+- Stage 2 supera metadata pura en temporal apenas marginalmente (+0.017 de R²)
+- El período de test (post-2016) coincide con crecimiento explosivo de Steam
+
+**Sistema final recomendado**:
+| Etapa | Modelo | Escenario | Métrica |
+|-------|--------|-----------|---------|
+| **Stage 1** | Hybrid RS+TF-IDF (08 / 13b) | Juegos con historial | TSCV R²=0.856–0.940 |
+| **Stage 2** | Stage2 Content lineal (12) | Juegos nuevos | Temporal R²=+0.074 |
 
 ---
 
-*Última actualización: 2026-05-17*
+*Última actualización: 2026-05-17 (post-fix: TF-IDF leakage + Optuna sort + R² metric space)*
