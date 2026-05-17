@@ -68,8 +68,8 @@
     "features": "RS clean (64d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": 0.524795413017273,
-      "rmse_temporal": 39.220412066374955,
+      "r2_temporal": 0.5248,
+      "rmse_temporal": 39.22,
       "mae_temporal": 5.839241981506348,
       "mape_temporal": 0.5099034905433655,
       "r2_tscv": 0.6650569796562195,
@@ -81,7 +81,7 @@
       "rmse_kfold": 72.06100575677418
     },
     "notes": "",
-    "timestamp": "2026-05-16 20:15"
+    "timestamp": "2026-05-16 21:20"
   },
   {
     "model_id": "05",
@@ -89,8 +89,8 @@
     "features": "RS clean (64d) + Metadata (6d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": -0.2096167802810669,
-      "rmse_temporal": 62.5742625212485,
+      "r2_temporal": -0.2096,
+      "rmse_temporal": 62.57,
       "mae_temporal": 9.225774765014648,
       "mape_temporal": 0.4982670247554779,
       "r2_tscv": -0.9297997236251831,
@@ -102,7 +102,7 @@
       "rmse_kfold": 81.82305115575865
     },
     "notes": "",
-    "timestamp": "2026-05-16 20:16"
+    "timestamp": "2026-05-16 21:20"
   },
   {
     "model_id": "08",
@@ -110,8 +110,8 @@
     "features": "RS clean (64d) + TF-IDF (100d) + Numeric (2d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": 0.4488704800605774,
-      "rmse_temporal": 42.23754554784463,
+      "r2_temporal": 0.4489,
+      "rmse_temporal": 42.24,
       "mae_temporal": 5.8804030418396,
       "mape_temporal": 0.4322602152824402,
       "r2_tscv": 0.3747074007987976,
@@ -123,7 +123,7 @@
       "rmse_kfold": 71.31134323625443
     },
     "notes": "",
-    "timestamp": "2026-05-16 20:19"
+    "timestamp": "2026-05-16 21:20"
   },
   {
     "model_id": "09",
@@ -131,21 +131,21 @@
     "features": "RS clean (64d) + Review text (384d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": 0.9066351652145386,
-      "rmse_temporal": 17.384553985798895,
-      "mae_temporal": 2.9987761974334717,
-      "mape_temporal": 28.151121695333774,
-      "r2_tscv": 0.8632806897163391,
-      "r2_tscv_std": 0.0978032035435056,
-      "rmse_tscv": 15.20990261706458,
-      "rmse_tscv_std": 15.505330694914914,
-      "r2_kfold": 0.3030220866203308,
-      "r2_kfold_std": 0.12473514616343326,
-      "rmse_kfold": 78.79844134749325,
-      "rmse_kfold_std": 59.38556792357647
+      "r2_temporal": -0.0224,
+      "rmse_temporal": 57.53,
+      "mae_temporal": 9.272315979003906,
+      "mape_temporal": 42.86593273203664,
+      "r2_tscv": 0.6796117424964905,
+      "r2_tscv_std": 0.4992672817679643,
+      "rmse_tscv": 24.34456980880135,
+      "rmse_tscv_std": 35.10736995637561,
+      "r2_kfold": 0.35526307821273806,
+      "r2_kfold_std": 0.2620668516640149,
+      "rmse_kfold": 74.11175147489139,
+      "rmse_kfold_std": 57.035490423089875
     },
     "notes": "cutoff=2016-01-01, train=2621, test=486",
-    "timestamp": "2026-05-16 20:27"
+    "timestamp": "2026-05-16 21:20"
   },
   {
     "model_id": "10",
@@ -153,20 +153,20 @@
     "features": "RS clean (64d) + Review text (384d) + RAWG features (12d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": 0.9378973841667175,
-      "rmse_temporal": 14.178388047379375,
-      "mae_temporal": 2.5196897983551025,
-      "mape_temporal": 29.282757431122857,
-      "r2_tscv": 0.7678287863731384,
-      "r2_tscv_std": 0.20408579793878193,
-      "rmse_tscv": 16.3551006565042,
-      "rmse_tscv_std": 12.632282244984008,
-      "r2_kfold": 0.5071865677833557,
-      "r2_kfold_std": 0.09398522235917385,
-      "rmse_kfold": 68.10258148740249,
-      "rmse_kfold_std": 54.73921582314449
+      "r2_temporal": -0.0171,
+      "rmse_temporal": 57.38,
+      "mae_temporal": 9.142169952392578,
+      "mape_temporal": 42.5318935684881,
+      "r2_tscv": 0.7665169835090637,
+      "r2_tscv_std": 0.23673276224637824,
+      "rmse_tscv": 20.826059329093606,
+      "rmse_tscv_std": 24.157908569043002,
+      "r2_kfold": 0.28318328857421876,
+      "r2_kfold_std": 0.24166743863745993,
+      "rmse_kfold": 72.88616880906851,
+      "rmse_kfold_std": 50.86100287631009
     },
-    "notes": "Ablation: RS=0.6294, 09=0.8452, full=0.9379",
-    "timestamp": "2026-05-16 20:36"
+    "notes": "Ablation: RS=-0.0271, 09=-0.0222, full=-0.0171",
+    "timestamp": "2026-05-16 21:20"
   }
 ]
