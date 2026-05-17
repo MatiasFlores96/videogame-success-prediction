@@ -1,45 +1,24 @@
 [
   {
-    "model_id": "06",
-    "model_name": "Review Text Emb",
-    "features": "Review text (384d)",
-    "embeddings": "none",
+    "model_id": "03",
+    "model_name": "RS Embeddings Only",
+    "features": "RS clean (64d)",
+    "embeddings": "clean",
     "metrics": {
-      "r2_temporal": -7.331371307373047e-05,
-      "rmse_temporal": 56.89678712164356,
-      "mae_temporal": 18.22441291809082,
-      "mape_temporal": 8.231388092041016,
-      "r2_tscv": -0.11684532165527343,
-      "r2_tscv_std": 0.10380786242659398,
-      "rmse_tscv": 39.18793251750314,
-      "rmse_tscv_std": 23.194953979623016,
-      "r2_kfold": -0.00012677907943725586,
-      "r2_kfold_std": 0.014414638770749876,
-      "rmse_kfold": 92.66628716318739
+      "r2_temporal": -0.02695333957672119,
+      "rmse_temporal": 57.65635586033642,
+      "mae_temporal": 9.474739074707031,
+      "mape_temporal": 0.4217277467250824,
+      "r2_tscv": 0.7698886275291443,
+      "r2_tscv_std": 0.16146143488373862,
+      "rmse_tscv": 19.50065236851196,
+      "rmse_tscv_std": 17.524459410869074,
+      "r2_kfold": 0.3141840219497681,
+      "r2_kfold_std": 0.3609100045777137,
+      "rmse_kfold": 66.70175746510576
     },
     "notes": "",
-    "timestamp": "2026-05-15 22:04"
-  },
-  {
-    "model_id": "07",
-    "model_name": "Tag Embeddings",
-    "features": "Tag embeddings (384d)",
-    "embeddings": "none",
-    "metrics": {
-      "r2_temporal": -127.24208068847656,
-      "rmse_temporal": 65.08996928530924,
-      "mae_temporal": 14.090126991271973,
-      "mape_temporal": 4.601202011108398,
-      "r2_tscv": -22.551623153686524,
-      "r2_tscv_std": 26.19339588813785,
-      "rmse_tscv": 53.787453442697014,
-      "rmse_tscv_std": 36.58010583062472,
-      "r2_kfold": -0.07099702358245849,
-      "r2_kfold_std": 0.1251420070307649,
-      "rmse_kfold": 103.1146625481625
-    },
-    "notes": "",
-    "timestamp": "2026-05-15 22:10"
+    "timestamp": "2026-05-16 23:14"
   },
   {
     "model_id": "04",
@@ -60,28 +39,7 @@
       "rmse_kfold": 91.30543543300678
     },
     "notes": "",
-    "timestamp": "2026-05-16 19:27"
-  },
-  {
-    "model_id": "03",
-    "model_name": "RS Embeddings Only",
-    "features": "RS clean (64d)",
-    "embeddings": "clean",
-    "metrics": {
-      "r2_temporal": 0.5248,
-      "rmse_temporal": 39.22,
-      "mae_temporal": 5.839241981506348,
-      "mape_temporal": 0.5099034905433655,
-      "r2_tscv": 0.6650569796562195,
-      "r2_tscv_std": 0.41621095982677625,
-      "rmse_tscv": 20.053923213140997,
-      "rmse_tscv_std": 16.398201643380172,
-      "r2_kfold": 0.3747240424156189,
-      "r2_kfold_std": 0.1877812998950472,
-      "rmse_kfold": 72.06100575677418
-    },
-    "notes": "",
-    "timestamp": "2026-05-16 21:20"
+    "timestamp": "2026-05-16 23:14"
   },
   {
     "model_id": "05",
@@ -89,20 +47,62 @@
     "features": "RS clean (64d) + Metadata (6d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": -0.2096,
-      "rmse_temporal": 62.57,
-      "mae_temporal": 9.225774765014648,
-      "mape_temporal": 0.4982670247554779,
-      "r2_tscv": -0.9297997236251831,
-      "r2_tscv_std": 1.449847596289261,
-      "rmse_tscv": 45.67139286934116,
-      "rmse_tscv_std": 27.542179762297085,
-      "r2_kfold": -0.3641864538192749,
-      "r2_kfold_std": 1.0290195762210481,
-      "rmse_kfold": 81.82305115575865
+      "r2_temporal": -0.023945927619934082,
+      "rmse_temporal": 57.571870420126835,
+      "mae_temporal": 9.345622062683105,
+      "mape_temporal": 0.4176025688648224,
+      "r2_tscv": 0.7602403283119201,
+      "r2_tscv_std": 0.09678905099528562,
+      "rmse_tscv": 18.660053892607078,
+      "rmse_tscv_std": 12.265548567792786,
+      "r2_kfold": 0.17329576015472412,
+      "r2_kfold_std": 0.4612632465356182,
+      "rmse_kfold": 71.01124332902818
     },
     "notes": "",
-    "timestamp": "2026-05-16 21:20"
+    "timestamp": "2026-05-16 23:16"
+  },
+  {
+    "model_id": "06",
+    "model_name": "Review Text Emb",
+    "features": "Review text (384d)",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": -7.331371307373047e-05,
+      "rmse_temporal": 56.89678712164356,
+      "mae_temporal": 18.22441291809082,
+      "mape_temporal": 8.231388092041016,
+      "r2_tscv": -0.11684532165527343,
+      "r2_tscv_std": 0.10380786242659398,
+      "rmse_tscv": 39.18793251750314,
+      "rmse_tscv_std": 23.194953979623016,
+      "r2_kfold": -0.00012677907943725586,
+      "r2_kfold_std": 0.014414638770749876,
+      "rmse_kfold": 92.66628716318739
+    },
+    "notes": "",
+    "timestamp": "2026-05-16 23:19"
+  },
+  {
+    "model_id": "07",
+    "model_name": "Tag Embeddings",
+    "features": "Tag embeddings (384d)",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": -127.24208068847656,
+      "rmse_temporal": 65.08996928530924,
+      "mae_temporal": 14.090126991271973,
+      "mape_temporal": 4.601202011108398,
+      "r2_tscv": -22.551623153686524,
+      "r2_tscv_std": 26.19339588813785,
+      "rmse_tscv": 53.787453442697014,
+      "rmse_tscv_std": 36.58010583062472,
+      "r2_kfold": -0.07099702358245849,
+      "r2_kfold_std": 0.1251420070307649,
+      "rmse_kfold": 103.1146625481625
+    },
+    "notes": "",
+    "timestamp": "2026-05-16 23:24"
   },
   {
     "model_id": "08",
@@ -110,20 +110,20 @@
     "features": "RS clean (64d) + TF-IDF (100d) + Numeric (2d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": 0.4489,
-      "rmse_temporal": 42.24,
-      "mae_temporal": 5.8804030418396,
-      "mape_temporal": 0.4322602152824402,
-      "r2_tscv": 0.3747074007987976,
-      "r2_tscv_std": 1.125626527346809,
-      "rmse_tscv": 22.609850992154406,
-      "rmse_tscv_std": 23.184585070697125,
-      "r2_kfold": 0.44099334478378294,
-      "r2_kfold_std": 0.2985144627596003,
-      "rmse_kfold": 71.31134323625443
+      "r2_temporal": -0.024042248725891113,
+      "rmse_temporal": 57.57458011475746,
+      "mae_temporal": 9.354968070983887,
+      "mape_temporal": 0.4185469448566437,
+      "r2_tscv": 0.8409818530082702,
+      "r2_tscv_std": 0.13114908841325407,
+      "rmse_tscv": 16.759944656506512,
+      "rmse_tscv_std": 18.111091098231253,
+      "r2_kfold": 0.09706436395645142,
+      "r2_kfold_std": 0.5543629755591182,
+      "rmse_kfold": 73.54534303286363
     },
     "notes": "",
-    "timestamp": "2026-05-16 21:20"
+    "timestamp": "2026-05-16 23:26"
   },
   {
     "model_id": "09",
@@ -131,8 +131,8 @@
     "features": "RS clean (64d) + Review text (384d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": -0.0224,
-      "rmse_temporal": 57.53,
+      "r2_temporal": -0.022409915924072266,
+      "rmse_temporal": 57.52867406644925,
       "mae_temporal": 9.272315979003906,
       "mape_temporal": 42.86593273203664,
       "r2_tscv": 0.6796117424964905,
@@ -145,7 +145,7 @@
       "rmse_kfold_std": 57.035490423089875
     },
     "notes": "cutoff=2016-01-01, train=2621, test=486",
-    "timestamp": "2026-05-16 21:20"
+    "timestamp": "2026-05-16 23:35"
   },
   {
     "model_id": "10",
@@ -153,8 +153,8 @@
     "features": "RS clean (64d) + Review text (384d) + RAWG features (12d)",
     "embeddings": "clean",
     "metrics": {
-      "r2_temporal": -0.0171,
-      "rmse_temporal": 57.38,
+      "r2_temporal": -0.0170748233795166,
+      "rmse_temporal": 57.37838063637841,
       "mae_temporal": 9.142169952392578,
       "mape_temporal": 42.5318935684881,
       "r2_tscv": 0.7665169835090637,
@@ -167,6 +167,132 @@
       "rmse_kfold_std": 50.86100287631009
     },
     "notes": "Ablation: RS=-0.0271, 09=-0.0222, full=-0.0171",
-    "timestamp": "2026-05-16 21:20"
+    "timestamp": "2026-05-16 23:45"
+  },
+  {
+    "model_id": "11a",
+    "model_name": "RS + Dev Reputation",
+    "features": "RS clean (64d) + dev_rep (1d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": -0.025342583656311035,
+      "rmse_temporal": 57.61112097299986,
+      "mae_temporal": 9.446154594421387,
+      "mape_temporal": 0.4429933428764343,
+      "r2_tscv": -0.8075267195701599,
+      "r2_tscv_std": 1.3794838476921774,
+      "rmse_tscv": 42.71439444220033,
+      "rmse_tscv_std": 20.497553486486826,
+      "r2_kfold": -0.6713411688804627,
+      "r2_kfold_std": 1.5273247248753745,
+      "rmse_kfold": 82.27730629923816
+    },
+    "notes": "",
+    "timestamp": "2026-05-17 00:51"
+  },
+  {
+    "model_id": "11b",
+    "model_name": "Hybrid + Dev Reputation",
+    "features": "RS clean (64d) + TF-IDF (100d) + Numeric (2d) + dev_rep (1d)",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": -0.02381265163421631,
+      "rmse_temporal": 57.568121586924086,
+      "mae_temporal": 9.354961395263672,
+      "mape_temporal": 0.43100807070732117,
+      "r2_tscv": 0.7217032074928283,
+      "r2_tscv_std": 0.3992013223513394,
+      "rmse_tscv": 22.734856242052963,
+      "rmse_tscv_std": 31.368130706402653,
+      "r2_kfold": -0.06518641710281373,
+      "r2_kfold_std": 0.783112407066126,
+      "rmse_kfold": 75.73510627592267
+    },
+    "notes": "",
+    "timestamp": "2026-05-17 00:53"
+  },
+  {
+    "model_id": "12",
+    "model_name": "Two-Stage: Content Model",
+    "features": "TF-IDF (100d) + Steam (2d) + RAWG (12d) + dev_rep (1d)",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": 0.07601708173751831,
+      "rmse_temporal": 54.68947987487516,
+      "mae_temporal": 12.222600936889648,
+      "mape_temporal": 2.7812366485595703,
+      "r2_tscv": -5.027544903755188,
+      "r2_tscv_std": 9.390653888899575,
+      "rmse_tscv": 57.12439296169633,
+      "rmse_tscv_std": 47.506335180917034,
+      "r2_kfold": -2.3050715208053587,
+      "r2_kfold_std": 5.8839284304356205,
+      "rmse_kfold": 86.72980608146403
+    },
+    "notes": "Stage 2 del sistema two-stage: contenido puro para juegos post-2016",
+    "timestamp": "2026-05-17 01:07"
+  },
+  {
+    "model_id": "13a",
+    "model_name": "RS Only (log target)",
+    "features": "RS clean (64d) [log-target]",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": -0.3864054000265862,
+      "rmse_temporal": 1.1501623674294907,
+      "mae_temporal": 9.473362922668457,
+      "mape_temporal": 0.4082641303539276,
+      "r2_tscv": 0.9322376548122164,
+      "r2_tscv_std": 0.008326671093000781,
+      "rmse_tscv": 0.28566063917527673,
+      "rmse_tscv_std": 0.03219356372237572,
+      "r2_kfold": 0.8121877675028017,
+      "r2_kfold_std": 0.04340754091902625,
+      "rmse_kfold": 0.49299785941062835
+    },
+    "notes": "LOG TARGET. R2_log=-0.3864 R2_orig=-0.0273 RMSE_orig=57.67",
+    "timestamp": "2026-05-17 01:12"
+  },
+  {
+    "model_id": "13b",
+    "model_name": "Hybrid RS+TF-IDF (log target)",
+    "features": "RS (64d)+TF-IDF (100d)+Numeric (2d) [log-target]",
+    "embeddings": "clean",
+    "metrics": {
+      "r2_temporal": -0.29937165068937754,
+      "rmse_temporal": 1.1134756564334014,
+      "mae_temporal": 9.307332038879395,
+      "mape_temporal": 0.3984995484352112,
+      "r2_tscv": 0.9280167345344446,
+      "r2_tscv_std": 0.008924734355042901,
+      "rmse_tscv": 0.2955830567036218,
+      "rmse_tscv_std": 0.044866706529461065,
+      "r2_kfold": 0.8516665209968561,
+      "r2_kfold_std": 0.03032579714452903,
+      "rmse_kfold": 0.43859480672844225
+    },
+    "notes": "LOG TARGET. R2_log=-0.2994 R2_orig=-0.0253 RMSE_orig=57.57",
+    "timestamp": "2026-05-17 01:14"
+  },
+  {
+    "model_id": "13c",
+    "model_name": "Stage2 Content (log target)",
+    "features": "TF-IDF (100d)+Steam (2d)+RAWG (12d)+dev_rep (1d) [log-target]",
+    "embeddings": "none",
+    "metrics": {
+      "r2_temporal": 0.25391944031851676,
+      "rmse_temporal": 0.8437366124838569,
+      "mae_temporal": 9.88371467590332,
+      "mape_temporal": 1.2805458307266235,
+      "r2_tscv": 0.7569697541576634,
+      "r2_tscv_std": 0.022636812438912846,
+      "rmse_tscv": 0.543819398326386,
+      "rmse_tscv_std": 0.0810640773007963,
+      "r2_kfold": 0.7241459731455475,
+      "r2_kfold_std": 0.018884998420107445,
+      "rmse_kfold": 0.5987067561797584
+    },
+    "notes": "LOG TARGET. R2_log=0.2539 R2_orig=0.0596 RMSE_orig=55.14",
+    "timestamp": "2026-05-17 01:15"
   }
 ]
