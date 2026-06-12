@@ -25,7 +25,13 @@ wheels/
 *.ipynb_checkpoints/
 
 # Presentation notebook (private)
-Code/PRESENTACION_TESIS.ipynb
+Code/analysis/PRESENTACION_TESIS.ipynb
+
+# Training artifacts
+catboost_info/
+
+# Claude Code session files
+.claude/
 
 # Environments
 .env

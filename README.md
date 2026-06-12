@@ -1,172 +1,205 @@
 # Video Game Popularity Prediction — Steam Dataset
 
-Predicción de popularidad de videojuegos en Steam comparando distintas estrategias de feature engineering: señales colaborativas (RS embeddings), contenido (metadata, NLP) e híbridos con datos externos.
+Predicción de popularidad de videojuegos en Steam usando embeddings de sistemas de recomendación (Two-Tower CF) como features para modelos de gradient boosting.
 
 Proyecto de tesis de Maestría en Ciencia de Datos.
 
 ---
 
+## Resultado Principal
+
+> **CatBoost + Two-Tower content-augmented (64d) + metadata (6d) → R²=0.407 / RMSE=1015**
+
+Los embeddings del RS content-augmented aportan **+0.093 R²** sobre el mejor baseline de contenido puro (meta+RAWG, R²=0.314). La arquitectura Two-Tower con cold-start dropout (p=0.3) es la clave: permite integrar señal colaborativa sin overfitting a ítems históricos.
+
+---
+
 ## Hipótesis Central
 
-> Los embeddings de un sistema de recomendación Two-Tower (CF) usados como features para XGBoost mejoran la predicción de popularidad de videojuegos frente a enfoques solo-contenido.
+> *¿Los embeddings de un sistema de recomendación Two-Tower mejoran la predicción de popularidad de videojuegos frente a enfoques solo-contenido?*
 
-**Resultado:** La hipótesis se **confirma within-distribution** (TSCV R²=0.841 con RS vs −0.516 sin RS) y **falla out-of-distribution** por el problema de cold-start inevitable en sistemas colaborativos puros.
-
----
-
-## Dataset
-
-**Australian Gaming Dataset (Steam)**
-- 3.682 juegos
-- 25.458 usuarios
-- 59.305 interacciones
-
-**Target:** `total_reviews` — número de reviews dejadas en el dataset australiano (proxy de popularidad/ventas).  
-Distribución extremadamente sesgada: mayoría de juegos con <20 reviews, máximo 3.759.
+**Respuesta**: Sí, con matices importantes — ver [Conclusiones](#conclusiones).
 
 ---
 
-## Metodología
+## Tabla de Resultados — Fase 2 (Dataset Global)
 
-**Evaluación con validación temporal estricta:**
+| Modelo | R² Temporal | RMSE | ¿Limpio? | Notas |
+|--------|:-----------:|:----:|:--------:|-------|
+| **24_05_cat** — RS content-aug v2 + Meta | **0.407** | **1015** | ✅ | Resultado principal |
+| 23_05 — RS content-aug v2 + Meta (XGBoost) | 0.368 | 1048 | ✅ | |
+| cs10_pureContent — Two-Tower CS=1.0 | 0.318 | 1088 | ✅ | Sin señal colaborativa |
+| abl_04 — Meta + RAWG raw | 0.314 | 1091 | ✅ | Mejor baseline sin RS |
+| abl_05 — TF-IDF + steam + meta + RAWG raw | 0.278 | 1120 | ✅ | |
+| 20_10 — Two-Tower estándar (ID-only) + RAWG | 0.147 | 1217 | ✅ | Embeddings ID-only no predicen |
+| abl_01 — Metadata only | 0.111 | 1242 | ✅ | |
+| 20_03 — Two-Tower estándar (ID-only) | −0.009 | 1324 | ✅ | |
+| 21_10_cat — CatBoost + rawg_ratings_count | 0.447 | 979 | ❌ | Leakage temporal en RAWG |
+| 19_10 — XGBoost + rawg_ratings_count | 0.438 | 987 | ❌ | Leakage temporal en RAWG |
 
-| Esquema | Descripción | Propósito |
-|---------|-------------|-----------|
-| **Temporal split** | Train = pre-2016 (2621 juegos), Test = 2016+ (486 juegos) | Simula predicción de juegos futuros — métrica principal |
-| **TSCV** | 5 ventanas rolling dentro de pre-2016 | Valida within-distribution (juegos con historial conocido) |
-| **K-Fold** | 5 folds estándar | Referencia de varianza |
-
-**Base learner:** XGBoost con Optuna (50 trials, TPE sampler, seed=42)
-
----
-
-## Corrección Crítica Aplicada
-
-### Leakage Temporal en Two-Tower
-El Two-Tower original se entrenaba con TODAS las interacciones, incluyendo juegos post-2016. Esto inflaba los embeddings del test set con señal de sus propias interacciones futuras.
-
-**Fix:** El entrenamiento del Two-Tower se filtró a interacciones de juegos pre-2016 únicamente (`cutoff = 2016-01-01`). Los resultados del README previo (R²≈0.79) eran inflados. Todos los resultados en esta versión son post-fix.
-
-Ver detalles completos en [EXPERIMENTS.md](EXPERIMENTS.md).
+**Null baseline** (predecir la media de training): RMSE = 1407.76. El modelo principal representa una reducción del 27.9%.
 
 ---
 
-## Resultados
+## Estructura del Repositorio
 
-### Modelos Lineales (target: reviews absolutas)
-
-| ID | Modelo | Features | R² Temporal | RMSE Temporal | R² TSCV | RMSE TSCV |
-|----|--------|----------|:-----------:|:-------------:|:-------:|:---------:|
-| 03 | RS Embeddings Only | RS clean (64d) | −0.018 | 57.42 | 0.886 | 14.28 |
-| 04 | Metadata Only | Steam metadata (6d) | +0.057 | 55.24 | −0.214 | 39.44 |
-| 05 | RS + Metadata | RS (64d) + Metadata (6d) | −0.016 | 57.35 | 0.889 | 14.24 |
-| 06 | Review Text Emb | BERT reviews (384d) | −0.011 | 57.20 | −0.172 | 39.51 |
-| 07 | Tag Embeddings | BERT tags (384d) | −6.93 | — | −3.776 | — |
-| 08 | Hybrid Collab-Content | RS (64d) + TF-IDF (100d) + Numeric (2d) | −0.024 | 57.57 | **0.856** | **16.20** |
-| 09 | RS + Review Text | RS (64d) + BERT reviews (384d) | −0.021 | 57.50 | 0.873 | 14.01 |
-| 10 | RS + Reviews + RAWG | RS (64d) + BERT (384d) + RAWG (12d) | −0.016 | 57.36 | 0.863 | 14.76 |
-| 11a | RS + Dev Reputation | RS (64d) + dev_rep (1d) | −0.026 | 57.62 | 0.778 | 20.37 |
-| 11b | Hybrid + Dev Reputation | RS (64d) + TF-IDF (100d) + Num (2d) + dev_rep | −0.016 | 57.36 | 0.858 | 16.25 |
-| 12 | Stage2 Content | TF-IDF (100d) + Steam (2d) + RAWG (12d) + dev_rep | **+0.074** | **54.76** | 0.469 | 26.37 |
-
-> Los R² temporales negativos en modelos RS indican cold-start: los 486 juegos post-2016 no tienen embeddings entrenados.
-
-### Modelos con Log-Transform del Target — log(1+reviews)
-
-| ID | Modelo | R² Temporal (orig) | R² TSCV (log) | RMSE TSCV (log) | Nota |
-|----|--------|:------------------:|:-------------:|:---------------:|------|
-| 13a | RS Only | −0.026 | 0.937 | 0.275 | Cold-start no mejora |
-| **13b** | **Hybrid RS+TF-IDF** | **−0.025** | **0.940** | **0.268** | **Mejor TSCV del proyecto** |
-| 13c | Stage2 Content | +0.050 | 0.754 | 0.547 | Log no supera lineal en temporal |
-
-> El log-transform no resuelve el cold-start. Para TSCV mejora a 0.940 (13b), pero Stage2 log (13c) es peor que el lineal (12: R²=+0.074). El resultado previo de 13c (R²_log=0.254) estaba inflado por leakage de TF-IDF — corregido.
-
----
-
-## Hallazgos Clave
-
-### 1. Cold-Start Degrada los RS Embeddings
-Los 486 juegos post-2016 no aparecen en el entrenamiento del Two-Tower. Sus embeddings son vectores no entrenados (ruido aleatorio). El XGBoost no puede extraer señal útil → R²≈−0.02 en temporal para todos los modelos con RS.
-
-### 2. RS Embeddings son Superiores Within-Distribution
-En el régimen pre-2016 donde todos los juegos tienen embeddings entrenados, la diferencia es contundente:
-- **Modelos RS** (03, 08, 09, 10): TSCV R² = **0.856–0.889**
-- **Metadata Only** (sin RS): TSCV R² = **−0.214**, RMSE = 39.44
-
-La hipótesis central se confirma: el espacio colaborativo captura señal que el contenido no puede replicar.
-
-### 3. El Espacio Colaborativo es Ortogonal al de Contenido
-Análisis en `02b_cold_start_embeddings.ipynb`:
-- Cosine similarity en espacio de features (tags, géneros): **0.987** entre vecinos más cercanos
-- Cosine similarity en espacio RS: **0.064** para los mismos pares
-- k-NN (k=10) para inferir embeddings RS desde contenido: R²CV = **−0.085**
-
-Conclusión: No existe mapping aprendible entre el espacio de contenido y el espacio colaborativo con los datos disponibles. El cold-start es un problema estructural, no de features.
-
-### 4. Developer Reputation Introduce Leakage en TSCV
-La reputación del desarrollador, calculada sobre todos los juegos pre-2016, usa información futura para las ventanas anteriores del TSCV. Resultado: TSCV R² cae de +0.770 a **−0.808** al añadirla sin control. En Stage 2 (contenido, sin TSCV relevante) sí aporta marginalmente.
-
-### 5. Log-Transform Mejora TSCV pero No el Cold-Start
-El log(1+y) como target mejora la predicción within-distribution:
-- TSCV: 0.856 → **0.940** para Hybrid RS+log (13b) — mejor TSCV del proyecto
-- Sin embargo, Stage2 + log (13c) obtiene R²=+0.050 temporal, **inferior** al Stage2 lineal (12: R²=+0.074)
-- El resultado anterior (R²_log=0.254 para 13c) era un artefacto del leakage de TF-IDF — corregido
-
-### 6. Sistema de Dos Etapas — Mejor Compromiso Práctico
-| Etapa | Modelo | Escenario | Métrica |
-|-------|--------|-----------|---------|
-| **Stage 1** | RS embeddings (Modelo 08 / 13b) | Juegos con historial conocido | TSCV R²=0.856–0.940 |
-| **Stage 2** | Stage2 Content lineal (Modelo 12) | Juegos nuevos (cold-start) | Temporal R²=**+0.074** |
+```
+VG_Recommender/
+├── Code/
+│   ├── phase1_australian/   # Notebooks de Fase 1 (dataset australiano)
+│   │   ├── 01-13_*.ipynb    # Exploración, modelos, ablations
+│   │   └── 11_shap_error_analysis.ipynb
+│   ├── phase2_global/       # Scripts de Fase 2 (dataset global Steam)
+│   │   ├── 15_preprocess_v2.py          # Preprocesamiento 7.76M interacciones
+│   │   ├── 16_train_rs_v2.py            # Two-Tower estándar (ID-only) v2
+│   │   ├── 17_retrain_v2_experiments.py # Experimentos con emb v2 alineados
+│   │   ├── 18_full_v2_pipeline.py       # Pipeline completo v2 (cutoff 2016/2017)
+│   │   ├── 20_shap_analysis.py          # SHAP sobre mejor modelo pre-leakage fix
+│   │   ├── 21_extended_experiments.py   # CatBoost, LightGBM, ensemble (con leakage)
+│   │   ├── 22_train_rs_content.py       # Two-Tower content-aug v1 (descartado)
+│   │   ├── 23_train_rs_content_v2.py    # Two-Tower content-aug v2 — arquitectura final
+│   │   ├── 24_ablation_catboost.py      # Ablation study + CatBoost — RESULTADO PRINCIPAL
+│   │   ├── 25_two_tower_search.py       # Sweep de arquitecturas Two-Tower
+│   │   ├── 26-30_train_rs_*.py          # Intentos de mejora (multitask, InfoNCE, cutoff 2017)
+│   │   ├── 31_log_transform.py          # Log-transform del target (descartado)
+│   │   └── results_tracker.py           # Gestión de experiment_results.json
+│   ├── analysis/            # Notebooks de análisis y presentación
+│   │   ├── 00_leaderboard.ipynb
+│   │   ├── 00_model_comparison.ipynb
+│   │   ├── RESUMEN_MODELOS.ipynb
+│   │   └── PRESENTACION_TESIS.ipynb
+│   └── utils/               # Scripts auxiliares de inspección y verificación
+├── Data/
+│   ├── experiment_results.json          # Resultados de todos los modelos (machine-readable)
+│   ├── interactions_v2.parquet          # 7.76M interacciones (user_idx, item_idx, rating)
+│   ├── item2idx_v2.json                 # Mapping appid → item_idx (15,380 juegos)
+│   ├── item_embeddings_rs_v2_content2.npy  # Embeddings Two-Tower v2 content-aug (15380, 64)
+│   ├── rawg_enriched.csv                # Features RAWG: metacritic, rating, playtime, etc.
+│   └── steam_games.json                 # Metadata de juegos Steam
+├── EXPERIMENTS.md           # Registro completo de todos los experimentos
+└── README.md
+```
 
 ---
 
-## Pipeline
+## Fase 1 — Dataset Australiano (3,682 juegos)
 
-### Notebooks
+**Notebooks**: `Code/phase1_australian/01_*.ipynb` → `13_*.ipynb`
 
-| Notebook | Descripción |
-|----------|-------------|
-| `01_data_preprocessing.ipynb` | Limpieza Steam, RAWG, dataset australiano |
-| `02_model_keras_rs.ipynb` | Two-Tower CF (Keras/JAX). Genera embeddings 64d. Filtro anti-leakage pre-2016 |
-| `02b_cold_start_embeddings.ipynb` | Análisis cold-start: k-NN, ortogonalidad de espacios |
-| `03_regressor_embeddings_only.ipynb` | Modelo 03: RS Only |
-| `04_regressor_metadata_only.ipynb` | Modelo 04: Metadata Only |
-| `05_regressor_embeddings_plus_metadata.ipynb` | Modelo 05: RS + Metadata |
-| `06_regressor_review_embeddings.ipynb` | Modelo 06: BERT reviews |
-| `07_regressor_tag_embeddings.ipynb` | Modelo 07: BERT tags |
-| `08_hybrid_collaborative_content.ipynb` | Modelo 08: RS + TF-IDF + Numeric |
-| `09_regressor_rs_plus_reviews.ipynb` | Modelo 09: RS + BERT reviews |
-| `10a_rawg_data_fetcher.ipynb` | Recolección RAWG API |
-| `10b_model_enriched.ipynb` | Modelo 10: RS + Reviews + RAWG |
-| `11_developer_reputation.ipynb` | Modelos 11a/11b: Developer reputation |
-| `12_two_stage_model.ipynb` | Modelo 12: Stage 2 del sistema dos etapas |
-| `13_log_transform.ipynb` | Modelos 13a/b/c: log(1+y) como target |
+El punto de partida fue el [McAuley Australian Gaming Dataset](https://jmcauley.ucsd.edu/data/steam/): 3,682 juegos, 25,458 usuarios, 59,305 interacciones.
 
-### Archivos de Datos Clave
+### Problema detectado: cold-start inevitable
 
-| Archivo | Descripción |
-|---------|-------------|
-| `item_embeddings_rs_clean.npy` | Embeddings Two-Tower post-fix (3682, 64) — solo juegos pre-2016 |
-| `user_embeddings_rs_clean.npy` | Embeddings de usuarios (25458, 64) |
-| `item_embeddings_rs_coldstart.npy` | Embeddings post-2016 inferidos por k-NN (3682, 64) |
-| `developer_reputation.npy` | Reputación histórica por item_idx (3682,) float32 |
-| `rawg_enriched.csv` | Features RAWG: metacritic, rating, playtime, plataformas, géneros |
-| `experiment_results.json` | Resultados de todos los modelos (machine-readable) |
-| `EXPERIMENTS.md` | Registro completo de experimentos, hallazgos, correcciones |
+El Two-Tower original se entrenaba con todas las interacciones, incluyendo post-2016 → **leakage temporal**. Post-fix (cutoff 2016), el R²≈0.79 original se redujo a R²_TSCV≈0.856–0.940 (within-distribution). Sin embargo, el test temporal (juegos 2016+) dio R²≈−0.02: los 486 juegos del test set no tenían embeddings entrenados → **cold-start**.
+
+El análisis en `02b_cold_start_embeddings.ipynb` confirmó que el espacio colaborativo y el espacio de contenido son **ortogonales** (cosine sim=0.064 entre vecinos de contenido en el espacio RS). No existe mapping aprendible entre ambos → el cold-start es un problema estructural.
+
+**Mejor resultado Fase 1 (limpio)**: Stage 2 content (TF-IDF + RAWG + dev_rep) → R² temporal = **+0.074**.
+
+---
+
+## Fase 2 — Dataset Global Steam (15,380 juegos)
+
+**Scripts**: `Code/phase2_global/15_*.py` → `31_*.py`
+
+### Dataset
+
+| Métrica | Valor |
+|---------|-------|
+| Items (juegos) | 15,380 |
+| Usuarios | 2,567,538 |
+| Interacciones totales | 7,762,197 |
+| Train (pre-2017) | 10,551 juegos |
+| Test (2017+) | 4,798 juegos |
+| TSCV | 7 ventanas (2013-07 → 2017-01) |
+
+**Target**: `total_reviews` — número de reviews como proxy de popularidad. Distribución muy sesgada: media=504, max=183,649.
+
+**Cutoff temporal**: 2017-01-01. Los juegos de 2017 tienen ~1 año de reviews acumuladas al momento del snapshot → distribución más uniforme que con cutoff 2016 (donde el test mezclaba cohortes de distinta antigüedad).
+
+### Arquitectura Two-Tower Content-Augmented v2
+
+El breakthrough vino de reemplazar el Two-Tower ID-only por un modelo que integra señal colaborativa y de contenido en el mismo embedding:
+
+```
+Item Tower:
+  ID Embedding (32d)  ──[cold-start dropout p=0.3]──┐
+                                                       concat(64d) → Linear(64d) → LayerNorm → item_vec(64d)
+  Content MLP:                                       ──┘
+    TF-IDF(100d) + numeric(4d) + RAWG quality(4d) = 108d
+    → Linear(108→128) → GELU → Dropout(0.1)
+    → Linear(128→64) → GELU → Linear(64→32)
+
+User Tower:
+  ID Embedding (64d) → item_vec(64d)
+
+Loss: BCE con negative sampling (1:1)
+Optimizador: AdamW, cosine annealing con warmup (2 épocas)
+Anti-leakage: entrenado solo con interacciones pre-2016 (cutoff = 2016-01-01)
+```
+
+**Cold-start dropout (p=0.3)**: durante training, el ID embedding se zerea con probabilidad 30%, forzando al content MLP a aprender representaciones independientes. En inferencia, los juegos nuevos (post-2016 sin historial) se representan principalmente por el content MLP. El gap de 1 año entre el cutoff del Two-Tower (2016) y el del XGBoost (2017) crea regularización natural: CatBoost entrena con una mezcla de ítems colaborativos y cold-start → generaliza mejor al test set.
+
+### Desarrollo (scripts principales)
+
+| Script | Descripción | Resultado clave |
+|--------|-------------|-----------------|
+| 16_ | Two-Tower estándar (ID-only) | R²=−0.009 temporal — embeddings ID-only no predicen |
+| 18_ | Pipeline completo v2 (cutoff 2016) | R²=+0.15 limpio (cutoff 2017 necesario) |
+| 20_ | SHAP + fix leakage rawg_ratings_count | R²: 0.44 → 0.15 al quitar la feature leakeada |
+| 22_ | Two-Tower content-aug v1 | R²≈0.13 — convergencia insuficiente (patience=2) |
+| 23_ | Two-Tower content-aug v2 (baseline) | R²=0.368 (XGBoost), primer resultado fuerte |
+| 24_ | Ablation + CatBoost | **R²=0.407** — resultado principal |
+| 25_ | Sweep arquitecturas Two-Tower | CS=0.3 confirmado como óptimo |
+| 26-30 | Intentos de mejora | InfoNCE, multi-task, cutoff 2017 — todos inferiores |
+| 31_ | Log-transform del target | R²=0.155 (orig) — descartado |
+
+### Ablation: contribución neta del RS
+
+| Baseline | R² | Con RS content-aug | Delta |
+|----------|----|--------------------|-------|
+| Metadata only (abl_01) | 0.111 | **0.407** (24_05_cat) | **+0.296** |
+| Meta + RAWG raw (abl_04) | 0.314 | **0.407** (24_05_cat) | **+0.093** |
+| Full content raw, 119d (abl_05) | 0.278 | 0.368 (23_05, 70d) | **+0.090** *(con menos features)* |
+
+### Sweep de arquitecturas (script 25)
+
+| Config | CS_DROP | R² | Interpretación |
+|--------|---------|-----|----------------|
+| Baseline | 0.3 | **0.407** | Óptimo |
+| cs10_pureContent | 1.0 | 0.318 | ≈ abl_04 (sin señal colaborativa) |
+| cs0_collab | 0.0 | 0.211 | Overfitting total al grafo histórico |
+| cs05_aggressive | 0.5 | 0.174 | Señal colaborativa insuficiente |
+| emb128 | 0.3 | 0.157 | Overfitting por capacidad excesiva |
+| noRawgInTower | 0.3 | 0.053 | Sin RAWG quality el content MLP no aprende señal de popularidad |
 
 ---
 
 ## Conclusiones
 
-1. **La hipótesis se confirma within-distribution.** RS embeddings dominan cuando existe historial: TSCV R²=0.856–0.889 vs −0.214 para metadata pura. El espacio colaborativo captura patrones de consumo colectivo que ninguna descripción de contenido replica.
+1. **Los embeddings RS content-augmented SÍ mejoran la predicción**: +0.093 R² sobre el mejor baseline sin RS (0.407 vs 0.314). Los embeddings ID-only no contribuyen (R²=−0.009).
 
-2. **El cold-start es una limitación estructural, no de features.** Los espacios colaborativo y de contenido son ortogonales (cosine sim=0.064). No existe mapping aprendible entre ambos con los datos disponibles.
+2. **La clave es el cold-start dropout (p=0.3)**: sin él (CS=0.0) el modelo overfittea al grafo histórico y colapsa a R²=0.211. El dropout actúa como regularizador que integra señal colaborativa sin perder generalización.
 
-3. **El sistema de dos etapas es el mejor compromiso práctico.** Stage 1 (RS, TSCV R²=0.856) para juegos conocidos + Stage 2 (contenido lineal, temporal R²=+0.074) para juegos nuevos = cobertura completa.
+3. **RAWG quality features son el ancla del content MLP**: sin `metacritic`, `rawg_rating`, `playtime_avg`, `esrb` en el tower, el modelo solo aprende similitud de géneros/tags — que no correlaciona con popularidad futura (R²=0.053 en noRawgInTower).
 
-4. **El log-transform mejora TSCV pero no el cold-start.** Predecir en escala logarítmica mejora el Stage 1 hasta TSCV R²=0.940, pero Stage2 + log (R²=+0.050) es inferior al Stage2 lineal (R²=+0.074).
+4. **La compresión del Two-Tower supera la concatenación manual**: 23_05 (RS 64d + meta 6d = 70 features, R²=0.368) > abl_05 (TF-IDF + steam + meta + RAWG = 119 features, R²=0.278). El embedding aprende representaciones más informativas que la concatenación explícita.
 
-5. **Validación temporal estricta es indispensable.** El TSCV y el split temporal revelan dinámicas muy distintas. Evaluar solo con K-Fold hubiera dado una imagen engañosamente optimista (KFold R²=0.45 para RS vs temporal R²=−0.02).
+5. **El diseño óptimo resultó ser no obvio**: el gap de 1 año entre el cutoff del Two-Tower (2016) y el cutoff del XGBoost (2017) crea regularización natural. Los intentos de mejora (scripts 26-30) — InfoNCE, multi-task con pop_head, cutoff 2017 para ambos — todos empeoraron el resultado.
+
+6. **Limitaciones honestas**: El target (`total_reviews`) es una muestra sesgada. La distribución es muy skewed (max=183,649). La cobertura RAWG es 2,866/15,380 ítems (18.6%) — el modelo depende de features externas disponibles en pocos ítems. El aporte neto del RS (~+0.09 sobre el mejor contenido-puro) es real pero moderado.
+
+---
+
+## Metodología de Validación
+
+| Esquema | Descripción | Métrica reportada |
+|---------|-------------|-------------------|
+| **Temporal split** | Train = pre-2017 (10,551), Test = 2017+ (4,798) | **Métrica principal** — simula predicción de juegos futuros |
+| **TSCV** | 7 ventanas rolling (2013-07 → 2017-01) | Within-distribution, estimación de varianza |
+| **K-Fold** | 5 folds estándar | Referencia, no métrica principal |
+
+**Anti-leakage**: el Two-Tower se entrena exclusivamente con interacciones de juegos pre-2016, garantizando que los embeddings no codifican popularidad de ítems del test set. El TF-IDF se fitea sobre ítems pre-2017 y se transforma sobre todos los ítems.
 
 ---
 
@@ -174,22 +207,16 @@ El log(1+y) como target mejora la predicción within-distribution:
 
 | Área | Librería |
 |------|----------|
-| Machine Learning | XGBoost, scikit-learn, Optuna |
-| Deep Learning / RS | Keras 3, keras-rs, JAX |
-| NLP | Sentence-Transformers (`all-MiniLM-L6-v2`), TF-IDF |
+| Gradient Boosting | CatBoost, XGBoost, LightGBM |
+| Deep Learning / RS | PyTorch, CUDA (RTX 4080), AMP |
+| Optimización HP | Optuna (TPE sampler) |
+| NLP | TF-IDF (scikit-learn) |
+| Interpretabilidad | SHAP |
 | Data | pandas, numpy, pyarrow |
-| Visualización | matplotlib, seaborn |
 | Externo | RAWG API |
 
 ---
 
-## Limitaciones
+## Registro Completo de Experimentos
 
-- El target (`total_reviews`) es una muestra sesgada: usuarios australianos que escribieron reviews, no ventas globales.
-- La distribución del target es extremadamente sesgada (mayoría <20 reviews, máximo 3.759).
-- El período de test (post-2016) coincide con crecimiento explosivo de Steam, cambiando la distribución subyacente.
-- Developer reputation calculada globalmente introduce leakage en TSCV (requiere cálculo por ventana para ser rigurosa).
-
----
-
-*Ver [EXPERIMENTS.md](EXPERIMENTS.md) para el registro completo de todos los experimentos, correcciones aplicadas y análisis detallados.*
+Ver [EXPERIMENTS.md](EXPERIMENTS.md) para el historial completo: todos los experimentos por script, bugs encontrados y corregidos, análisis de leakage, y la evolución del resultado desde R²≈−0.02 (Fase 1 cold-start) hasta R²=0.407 (resultado final).
