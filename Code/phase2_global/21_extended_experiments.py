@@ -1,7 +1,17 @@
 ﻿"""
 21_extended_experiments.py
 ==========================
-Mejoras sobre el mejor modelo (19_10, R²=0.438):
+[EXPLORACIÓN — RESULTADOS CONTIENEN LEAKAGE]
+
+Estos modelos incluyen `rawg_ratings_count` como feature, que es leakage duro:
+el conteo de ratings en RAWG es un proxy de popularidad post-lanzamiento.
+Identificado en script 20_ (SHAP: rawg_ratings_count = feature #1).
+Los resultados R²≈0.44 son artefactos y no deben usarse como referencia en la tesis.
+
+Script canónico limpio: 24_ablation_catboost.py y 34_train_rs_content_v3.py.
+
+---
+Mejoras sobre el mejor modelo (19_10, R²=0.438 — también leakeado):
   21_10_opt   — XGBoost 19_10 con 150 Optuna trials
   21_10_feat  — XGBoost con feature engineering sobre RAWG
   21_10_lgbm  — LightGBM equivalente a 19_10

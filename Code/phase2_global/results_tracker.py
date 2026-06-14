@@ -43,17 +43,18 @@ def load_results():
     for d in data:
         m = d.get('metrics', {})
         rows.append({
-            'ID':         d.get('model_id', ''),
-            'Modelo':     d.get('model_name', ''),
-            'Features':   d.get('features', ''),
-            'Emb':        d.get('embeddings', ''),
-            'R2 test':    m.get('r2_temporal'),
-            'RMSE test':  m.get('rmse_temporal'),
-            'MAE test':   m.get('mae_temporal'),
+            'ID':          d.get('model_id', ''),
+            'Modelo':      d.get('model_name', ''),
+            'Features':    d.get('features', ''),
+            'Emb':         d.get('embeddings', ''),
+            'R2 test':     m.get('r2_temporal'),
+            'RMSE test':   m.get('rmse_temporal'),
+            'MAE test':    m.get('mae_temporal'),
             'MAPE test %': m.get('mape_temporal'),
-            'R2 TSCV':    m.get('r2_tscv'),
-            'R2 KFold':   m.get('r2_kfold'),
-            'Notas':      d.get('notes', ''),
+            'Spearman':    m.get('spearman_temporal'),
+            'R2 TSCV':     m.get('r2_tscv'),
+            'R2 KFold':    m.get('r2_kfold'),
+            'Notas':       d.get('notes', ''),
         })
     df = pd.DataFrame(rows)
     df = df.sort_values('R2 test', ascending=False, na_position='last').reset_index(drop=True)
@@ -66,20 +67,20 @@ def print_leaderboard():
     if df.empty:
         print('No hay resultados guardados.')
         return
-    sep = '=' * 92
+    sep = '=' * 105
     print(sep)
     print(f"{'ID':>3}  {'Modelo':<28}  {'R2 test':>8}  {'RMSE':>7}  "
-          f"{'MAE':>6}  {'MAPE%':>6}  {'R2 TSCV':>8}  {'R2 KFold':>8}")
+          f"{'MAE':>6}  {'Spearman':>9}  {'R2 TSCV':>8}  {'R2 KFold':>8}")
     print(sep)
     for _, r in df.iterrows():
         def fmt(v, fmt_str):
-            return format(v, fmt_str) if pd.notna(v) else '   N/A'
+            return format(v, fmt_str) if pd.notna(v) else '     N/A'
         r2    = fmt(r['R2 test'],    '.4f')
         rmse  = fmt(r['RMSE test'],  '.2f')
         mae   = fmt(r['MAE test'],   '.2f')
-        mape  = fmt(r['MAPE test %'],'.1f')
+        rho   = fmt(r.get('Spearman'), '.4f')
         tscv  = fmt(r['R2 TSCV'],   '.4f')
         kfold = fmt(r['R2 KFold'],  '.4f')
         print(f"[{r['ID']:>2}]  {str(r['Modelo']):<28}  {r2:>8}  {rmse:>7}  "
-              f"{mae:>6}  {mape:>6}  {tscv:>8}  {kfold:>8}")
+              f"{mae:>6}  {rho:>9}  {tscv:>8}  {kfold:>8}")
     print(sep)

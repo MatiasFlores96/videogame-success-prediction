@@ -1,6 +1,13 @@
 ﻿"""
 18_full_v2_pipeline.py
 =======================
+[EXPLORACIÓN — modelos con RAWG (23_10) incluyen rawg_ratings_count (leakage)]
+
+Los modelos 23_05, 23_08 etc. (sin RAWG) son limpios.
+El modelo 23_10 (con RAWG) incluye rawg_ratings_count → leakage duro.
+Para resultados limpios ver 24_ablation_catboost.py y 34_train_rs_content_v3.py.
+
+---
 Pipeline completo reemplazando TODO por datos v2 (global Steam, 2.56M usuarios).
 
 Cambios vs pipeline original:
