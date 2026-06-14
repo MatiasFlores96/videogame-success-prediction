@@ -8,9 +8,18 @@ Proyecto de tesis de Maestría en Ciencia de Datos.
 
 ## Resultado Principal
 
-> **CatBoost + Two-Tower content-augmented (64d) + metadata (6d) → R²=0.407 / RMSE=1015**
+La pregunta de la tesis tiene una respuesta de **dos regímenes**, validada con multi-seed y barras de error (scripts 32-39, auditoría de robustez):
 
-Los embeddings del RS content-augmented aportan **+0.093 R²** sobre el mejor baseline de contenido puro (meta+RAWG, R²=0.314). La arquitectura Two-Tower con cold-start dropout (p=0.3) es la clave: permite integrar señal colaborativa sin overfitting a ítems históricos.
+| Régimen | RS content-aug (Two-Tower) | Contenido-puro (meta+RAWG) | Veredicto |
+|---------|---------------------------|----------------------------|-----------|
+| **Within-distribution** (juegos con historial) — TSCV | **R²=0.699 ± 0.061** | 0.150 ± 0.097 | **RS gana ×4.7** |
+| Within-distribution — KFold | **0.75** | 0.33 | RS gana ×2.3 |
+| **Extrapolación temporal** (juegos 2017+, cold-start) | 0.23 ± 0.06 | 0.27 ± 0.04 | Empate (bandas solapadas) |
+| Ranking temporal (Spearman) | 0.49 ± 0.02 | 0.52 ± 0.02 | Empate |
+
+> **Los embeddings colaborativos son transformadores para juegos del catálogo con historial, pero no superan al contenido para juegos nuevos — el cold-start es estructural.** El sistema correcto es de dos etapas: RS para el catálogo, contenido para lanzamientos.
+
+⚠️ **Nota de honestidad metodológica**: una versión anterior de este proyecto reportaba R²=0.407 temporal como resultado principal. La auditoría de robustez (multi-seed, 5 semillas × 2 configuraciones + barras de error del baseline) demostró que ese número era una **realización afortunada** (distribución real: 0.22-0.24 ± 0.02) amplificada por varianza de tuning. El proceso completo de detección está documentado en [EXPERIMENTS.md](EXPERIMENTS.md) — y es, en sí mismo, una de las contribuciones de la tesis.
 
 ---
 
@@ -18,26 +27,32 @@ Los embeddings del RS content-augmented aportan **+0.093 R²** sobre el mejor ba
 
 > *¿Los embeddings de un sistema de recomendación Two-Tower mejoran la predicción de popularidad de videojuegos frente a enfoques solo-contenido?*
 
-**Respuesta**: Sí, con matices importantes — ver [Conclusiones](#conclusiones).
+**Respuesta**: Sí within-distribution (×4.7 en TSCV, robusto); no en cold-start temporal — ver [Conclusiones](#conclusiones).
 
 ---
 
 ## Tabla de Resultados — Fase 2 (Dataset Global)
 
-| Modelo | R² Temporal | RMSE | ¿Limpio? | Notas |
-|--------|:-----------:|:----:|:--------:|-------|
-| **24_05_cat** — RS content-aug v2 + Meta | **0.407** | **1015** | ✅ | Resultado principal |
-| 23_05 — RS content-aug v2 + Meta (XGBoost) | 0.368 | 1048 | ✅ | |
-| cs10_pureContent — Two-Tower CS=1.0 | 0.318 | 1088 | ✅ | Sin señal colaborativa |
-| abl_04 — Meta + RAWG raw | 0.314 | 1091 | ✅ | Mejor baseline sin RS |
-| abl_05 — TF-IDF + steam + meta + RAWG raw | 0.278 | 1120 | ✅ | |
-| 20_10 — Two-Tower estándar (ID-only) + RAWG | 0.147 | 1217 | ✅ | Embeddings ID-only no predicen |
-| abl_01 — Metadata only | 0.111 | 1242 | ✅ | |
-| 20_03 — Two-Tower estándar (ID-only) | −0.009 | 1324 | ✅ | |
-| 21_10_cat — CatBoost + rawg_ratings_count | 0.447 | 979 | ❌ | Leakage temporal en RAWG |
-| 19_10 — XGBoost + rawg_ratings_count | 0.438 | 987 | ❌ | Leakage temporal en RAWG |
+Resultados post-auditoría, con barras de error donde hay repeticiones (5 seeds):
 
-**Null baseline** (predecir la media de training): RMSE = 1407.76. El modelo principal representa una reducción del 27.9%.
+| Modelo | R² Temporal | Spearman | TSCV | Notas |
+|--------|:-----------:|:--------:|:----:|-------|
+| **RS content-aug v3 + meta5** (multi-seed) | **0.219 ± 0.017** | **0.496 ± 0.009** | **0.693** | Pipeline limpio, 5 seeds |
+| Contenido-puro meta5+RAWG (multi-seed) | 0.274 ± 0.037 | 0.516 ± 0.021 | 0.150 | Baseline sin RS, 5 tuning seeds |
+| RS all-cold-start (deployment) | 0.191 | 0.547 | 0.345 | Solo content MLP, juegos nuevos |
+| RS + Tweedie loss | 0.245 | **0.573** | 0.608 | Mejor ranking del proyecto |
+| Two-Tower ID-only (20_03) | −0.009 | — | 0.654 | Sin content tower: no predice temporal |
+| Metadata only (abl_01) | 0.111 | — | 0.021 | |
+
+**Resultados históricos descartados por la auditoría:**
+
+| Modelo | R² | Causa |
+|--------|-----|-------|
+| ~~24_05_cat~~ | ~~0.407~~ | Realización afortunada del tower + tuning con columna inerte (has_senti) |
+| ~~21_10_cat~~ | ~~0.447~~ | Leakage duro: rawg_ratings_count |
+| ~~19_10~~ | ~~0.438~~ | Leakage duro: rawg_ratings_count |
+
+**Null baseline** (predecir la media de training): RMSE = 1407.76.
 
 ---
 
@@ -62,6 +77,9 @@ VG_Recommender/
 │   │   ├── 25_two_tower_search.py       # Sweep de arquitecturas Two-Tower
 │   │   ├── 26-30_train_rs_*.py          # Intentos de mejora (multitask, InfoNCE, cutoff 2017)
 │   │   ├── 31_log_transform.py          # Log-transform del target (descartado)
+│   │   ├── 32-39_*.py                   # AUDITORÍA: leakage, multi-seed, fixes, barras de error
+│   │   ├── v2_data.py                   # Módulo compartido: datos + features + eval (scripts 32+)
+│   │   ├── tower_v3.py                  # Two-Tower parametrizado con fixes metodológicos
 │   │   └── results_tracker.py           # Gestión de experiment_results.json
 │   ├── analysis/            # Notebooks de análisis y presentación
 │   │   ├── 00_leaderboard.ipynb
@@ -148,46 +166,69 @@ Anti-leakage: entrenado solo con interacciones pre-2016 (cutoff = 2016-01-01)
 | 18_ | Pipeline completo v2 (cutoff 2016) | R²=+0.15 limpio (cutoff 2017 necesario) |
 | 20_ | SHAP + fix leakage rawg_ratings_count | R²: 0.44 → 0.15 al quitar la feature leakeada |
 | 22_ | Two-Tower content-aug v1 | R²≈0.13 — convergencia insuficiente (patience=2) |
-| 23_ | Two-Tower content-aug v2 (baseline) | R²=0.368 (XGBoost), primer resultado fuerte |
-| 24_ | Ablation + CatBoost | **R²=0.407** — resultado principal |
-| 25_ | Sweep arquitecturas Two-Tower | CS=0.3 confirmado como óptimo |
+| 23_ | Two-Tower content-aug v2 | R²=0.368 (XGBoost) — luego revisado por auditoría |
+| 24_ | Ablation + CatBoost | R²=0.407 — luego revisado por auditoría |
+| 25_ | Sweep arquitecturas Two-Tower | CS∈{0,0.3,0.5,1.0}: extremos colapsan |
 | 26-30 | Intentos de mejora | InfoNCE, multi-task, cutoff 2017 — todos inferiores |
 | 31_ | Log-transform del target | R²=0.155 (orig) — descartado |
+| **32-39** | **Auditoría de robustez** | Multi-seed, leakage metadata, fixes tower, barras de error — **revisa las conclusiones** |
 
-### Ablation: contribución neta del RS
+### Auditoría de robustez (scripts 32-39)
 
-| Baseline | R² | Con RS content-aug | Delta |
-|----------|----|--------------------|-------|
-| Metadata only (abl_01) | 0.111 | **0.407** (24_05_cat) | **+0.296** |
-| Meta + RAWG raw (abl_04) | 0.314 | **0.407** (24_05_cat) | **+0.093** |
-| Full content raw, 119d (abl_05) | 0.278 | 0.368 (23_05, 70d) | **+0.090** *(con menos features)* |
+| Script | Pregunta | Veredicto |
+|--------|----------|-----------|
+| 32/32b | ¿has_senti (snapshot 2018) leakea? | SHAP=0: el modelo no lo usó; la varianza de tuning (±0.05) es el hallazgo real |
+| 33/33b | ¿Tweedie/Poisson/ensemble/metascore mejoran? | Tweedie gana ranking (ρ=0.573); ensemble honesto ≈ baseline; Poisson colapsa |
+| 34 | ¿Fixes metodológicos del tower? | TSCV/KFold récord (0.69/0.75); el val-loss "bugueado" de 23_ seleccionaba popularidad accidentalmente |
+| 35 | ¿CS_DROP=0.3 es óptimo? | Meseta plana en [0.2, 0.4] |
+| 36 | ¿El 0.407 es reproducible? | **No: distribución real 0.22-0.24 ± 0.02 (5 seeds × 2 configs)** |
+| 37 | ¿MiniLM > TF-IDF en el tower? | Empate — el cuello de botella no es la representación de tags |
+| 38 | ¿Fit transductivo o suerte? | Réplica exacta a 4 decimales (seed 42) + seed 123 da 0.15 → **suerte** |
+| 39 | ¿Barras del baseline? | Contenido 0.274±0.037; la varianza dominante es el tuning downstream (σ=0.055) |
 
-### Sweep de arquitecturas (script 25)
+### Ablation: contribución neta del RS (post-auditoría)
 
-| Config | CS_DROP | R² | Interpretación |
-|--------|---------|-----|----------------|
-| Baseline | 0.3 | **0.407** | Óptimo |
-| cs10_pureContent | 1.0 | 0.318 | ≈ abl_04 (sin señal colaborativa) |
-| cs0_collab | 0.0 | 0.211 | Overfitting total al grafo histórico |
-| cs05_aggressive | 0.5 | 0.174 | Señal colaborativa insuficiente |
-| emb128 | 0.3 | 0.157 | Overfitting por capacidad excesiva |
-| noRawgInTower | 0.3 | 0.053 | Sin RAWG quality el content MLP no aprende señal de popularidad |
+La contribución del RS depende del régimen de evaluación:
+
+| Métrica | RS v3 + meta5 | Contenido-puro (meta5+RAWG) | Delta RS |
+|---------|---------------|------------------------------|----------|
+| TSCV (within-dist) | **0.699 ± 0.061** | 0.150 ± 0.097 | **+0.55** ✅ |
+| KFold | **0.75** | 0.33 | **+0.42** ✅ |
+| R² temporal (cold-start) | 0.22 ± 0.02 | 0.27 ± 0.04 | −0.05 (solapado) |
+| Spearman temporal | 0.49 ± 0.02 | 0.52 ± 0.02 | ≈0 (solapado) |
+
+### Sweep de arquitecturas (scripts 25 + 35)
+
+El sweep grueso (25_) mostró que los extremos colapsan; el fino (35_) que el interior es meseta:
+
+| CS_DROP | R² (una corrida) | Interpretación |
+|---------|------------------|----------------|
+| 0.0 | 0.211 | Overfitting al grafo histórico (val=0.802) |
+| 0.20–0.40 | 0.21–0.23 | **Meseta plana** — diferencias dentro del ruido (σ≈0.02) |
+| 0.5 | 0.174 | Señal colaborativa insuficiente |
+| 1.0 | 0.318* | Contenido puro (*una corrida, sin barras) |
+| EMB=128 | 0.157 | Overfitting por capacidad |
+| sin RAWG en tower | 0.053 | RAWG quality es el ancla del content MLP |
 
 ---
 
 ## Conclusiones
 
-1. **Los embeddings RS content-augmented SÍ mejoran la predicción**: +0.093 R² sobre el mejor baseline sin RS (0.407 vs 0.314). Los embeddings ID-only no contribuyen (R²=−0.009).
+1. **Los embeddings colaborativos son transformadores within-distribution**: TSCV 0.699±0.061 vs 0.150±0.097 del contenido-puro (×4.7, bandas sin solape). Para juegos del catálogo con historial, la señal colaborativa domina. Los embeddings ID-only sin content tower no predicen nada (R²=−0.009).
 
-2. **La clave es el cold-start dropout (p=0.3)**: sin él (CS=0.0) el modelo overfittea al grafo histórico y colapsa a R²=0.211. El dropout actúa como regularizador que integra señal colaborativa sin perder generalización.
+2. **El cold-start es estructural y el content-augmented tower no lo resuelve**: en extrapolación temporal (juegos 2017+), RS (0.23±0.06) y contenido-puro (0.27±0.04) empatan. La arquitectura empaqueta la señal de contenido en el embedding (útil operacionalmente: un solo vector por juego, ρ=0.547 en deployment puro), pero no crea información colaborativa donde no la hay. Confirma a escala global la conclusión de la Fase 1.
 
-3. **RAWG quality features son el ancla del content MLP**: sin `metacritic`, `rawg_rating`, `playtime_avg`, `esrb` en el tower, el modelo solo aprende similitud de géneros/tags — que no correlaciona con popularidad futura (R²=0.053 en noRawgInTower).
+3. **El sistema correcto es de dos etapas**: RS para el catálogo con historial (TSCV 0.70), contenido para lanzamientos nuevos. Mismo diseño que concluyó la Fase 1, ahora con rigor estadístico.
 
-4. **La compresión del Two-Tower supera la concatenación manual**: 23_05 (RS 64d + meta 6d = 70 features, R²=0.368) > abl_05 (TF-IDF + steam + meta + RAWG = 119 features, R²=0.278). El embedding aprende representaciones más informativas que la concatenación explícita.
+4. **Una corrida no es un resultado** (lección metodológica central): la varianza estocástica total del pipeline (~±0.06 R²) superaba el efecto que se quería medir (+0.09). El "resultado principal" original (0.407) era una realización afortunada — detectado con multi-seed (5 semillas × 2 configs) y réplica exacta (38_: seed 42 reproduce a 4 decimales, seed 123 da 0.15). La fuente de varianza dominante es el **tuning downstream** (Optuna/CatBoost, σ=0.055), no el entrenamiento del tower (σ=0.017).
 
-5. **El diseño óptimo resultó ser no obvio**: el gap de 1 año entre el cutoff del Two-Tower (2016) y el cutoff del XGBoost (2017) crea regularización natural. Los intentos de mejora (scripts 26-30) — InfoNCE, multi-task con pop_head, cutoff 2017 para ambos — todos empeoraron el resultado.
+5. **Tres capas de leakage detectadas y cuantificadas**: `rawg_ratings_count` (duro, −0.29 R² al removerlo), metadata snapshot 2018 (`has_senti` inerte con SHAP=0; `num_tags` soft-leakage ≤0.04), y fit transductivo de TF-IDF/z-score (agrega varianza, no sesgo sistemático).
 
-6. **Limitaciones honestas**: El target (`total_reviews`) es una muestra sesgada. La distribución es muy skewed (max=183,649). La cobertura RAWG es 2,866/15,380 ítems (18.6%) — el modelo depende de features externas disponibles en pocos ítems. El aporte neto del RS (~+0.09 sobre el mejor contenido-puro) es real pero moderado.
+6. **RAWG quality features son el ancla del content MLP**: sin `metacritic`, `rawg_rating`, `playtime_avg`, `esrb` en el tower, el modelo colapsa (R²=0.053). El cold-start dropout funciona en meseta [0.2, 0.4] — el valor exacto no importa.
+
+7. **R² temporal es frágil con outliers extremos (max=183,649); Spearman es estable** (±0.01-0.02 entre seeds). Para el caso de uso real (priorizar juegos por popularidad esperada), el ranking es la métrica relevante — y ahí Tweedie loss da el mejor resultado del proyecto (ρ=0.573).
+
+8. **Limitaciones honestas**: target = muestra sesgada (reviews como proxy); cobertura RAWG 18.6%; el test set 2017 tiene solo ~1 año de acumulación de reviews; los resultados negativos (MiniLM ≈ TF-IDF, Poisson colapsa, ensemble honesto ≈ baseline, emb-averaging entre seeds destruye señal) están documentados en EXPERIMENTS.md.
 
 ---
 
@@ -219,4 +260,4 @@ Anti-leakage: entrenado solo con interacciones pre-2016 (cutoff = 2016-01-01)
 
 ## Registro Completo de Experimentos
 
-Ver [EXPERIMENTS.md](EXPERIMENTS.md) para el historial completo: todos los experimentos por script, bugs encontrados y corregidos, análisis de leakage, y la evolución del resultado desde R²≈−0.02 (Fase 1 cold-start) hasta R²=0.407 (resultado final).
+Ver [EXPERIMENTS.md](EXPERIMENTS.md) para el historial completo: todos los experimentos por script, bugs encontrados y corregidos, las tres capas de leakage detectadas, la auditoría de robustez multi-seed (scripts 32-39), y la evolución honesta del proyecto — desde R²≈−0.02 (Fase 1 cold-start), pasando por el espejismo del 0.407, hasta la conclusión de dos regímenes con barras de error.

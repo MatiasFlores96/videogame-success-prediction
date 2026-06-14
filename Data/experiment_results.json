@@ -2038,5 +2038,870 @@
     },
     "notes": "log-transform CatBoost: train=10551 test=4798",
     "timestamp": "2026-05-27 20:24"
+  },
+  {
+    "model_id": "24_05_cat_clean",
+    "model_name": "CatBoost RS content-aug v2 + Meta5 (sin has_senti)",
+    "features": "RS content-aug v2 (64d) + meta sin has_senti (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.34043441518612383,
+      "rmse_temporal": 1070.0208733526608,
+      "mae_temporal": 174.6501266252568,
+      "mape_temporal": 10.0031618265886,
+      "spearman_temporal": 0.40382603583951865,
+      "r2_tscv": 0.4341780313627851,
+      "r2_tscv_std": 0.288209878251089,
+      "r2_kfold": 0.553678977383192,
+      "r2_kfold_std": 0.1504132002292154
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Auditoría 32_: has_senti excluido por leakage (sentiment snapshot 2018).",
+    "timestamp": "2026-06-11 21:33"
+  },
+  {
+    "model_id": "24_05_cat_no_nt",
+    "model_name": "CatBoost RS v2 + meta sin num_tags (4d)",
+    "features": "RS v2 (64d) + [price, ea, num_genres, num_specs]",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.30596464424111236,
+      "rmse_temporal": 1097.625161026572,
+      "mae_temporal": 168.58912283333538,
+      "mape_temporal": 9.727357007176813,
+      "spearman_temporal": 0.4766450233437112,
+      "r2_tscv": 0.5060478325482115,
+      "r2_tscv_std": 0.33056143674353927,
+      "r2_kfold": 0.6064995017687884,
+      "r2_kfold_std": 0.10783476071835447
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Ablacion 32b: num_tags excluido (soft-leakage, tags acumulativos).",
+    "timestamp": "2026-06-11 21:41"
+  },
+  {
+    "model_id": "24_05_cat_strict",
+    "model_name": "CatBoost RS v2 + meta estricta (3d)",
+    "features": "RS v2 (64d) + [price, ea, num_genres]",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.30039763168946165,
+      "rmse_temporal": 1102.01851684716,
+      "mae_temporal": 166.87939056271088,
+      "mape_temporal": 11.003113043724383,
+      "spearman_temporal": 0.43879554762091577,
+      "r2_tscv": 0.4409287294454272,
+      "r2_tscv_std": 0.320625487070679,
+      "r2_kfold": 0.6004845701240393,
+      "r2_kfold_std": 0.12676610008818445
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Ablacion 32b: sin num_tags/num_specs/has_senti (todos los canales snapshot).",
+    "timestamp": "2026-06-11 21:44"
+  },
+  {
+    "model_id": "33_tweedie",
+    "model_name": "CatBoost Tweedie + RS v2 + Meta5",
+    "features": "RS content-aug v2 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.24509193246927552,
+      "rmse_temporal": 1144.749044456622,
+      "mae_temporal": 143.7136943158192,
+      "mape_temporal": 7.302812858273792,
+      "spearman_temporal": 0.5727039160738973,
+      "r2_tscv": 0.6083305789775135,
+      "r2_tscv_std": 0.39132753639640405,
+      "r2_kfold": 0.681022965906099,
+      "r2_kfold_std": 0.13312640116930463
+    },
+    "notes": "v2 cutoff2017 CatBoost(Tweedie:variance_power=1.424) train=10551 test=4798. Tweedie variance_power tuneado por Optuna.",
+    "timestamp": "2026-06-11 21:46"
+  },
+  {
+    "model_id": "33_poisson",
+    "model_name": "CatBoost Poisson + RS v2 + Meta5",
+    "features": "RS content-aug v2 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": -0.014988050235666739,
+      "rmse_temporal": 1327.3752664403094,
+      "mae_temporal": 161.3005418924552,
+      "mape_temporal": 0.7676818589964286,
+      "spearman_temporal": NaN,
+      "r2_tscv": -0.0718872525037304,
+      "r2_tscv_std": 0.05399981586741892,
+      "r2_kfold": -0.035434210386039354,
+      "r2_kfold_std": 0.01310193510505694
+    },
+    "notes": "v2 cutoff2017 CatBoost(Poisson) train=10551 test=4798.",
+    "timestamp": "2026-06-11 21:47"
+  },
+  {
+    "model_id": "33_ens",
+    "model_name": "Ensemble CatBoost+XGBoost RS v2 + Meta5",
+    "features": "RS content-aug v2 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.4378314751599569,
+      "rmse_temporal": 987.8625453548598,
+      "mae_temporal": 161.17210260651166,
+      "spearman_temporal": 0.5243713821340593
+    },
+    "notes": "Promedio ponderado w_cat=0.3. Sin TSCV/KFold (solo temporal).",
+    "timestamp": "2026-06-11 21:50"
+  },
+  {
+    "model_id": "33_mixed",
+    "model_name": "CatBoost RS v2 mixto (std/cs) + Meta5",
+    "features": "RS v2 std train + cs test (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.07624185695060837,
+      "rmse_temporal": 1266.3168806400283,
+      "mae_temporal": 180.72083019472953,
+      "mape_temporal": 8.57692001199692,
+      "spearman_temporal": 0.39803322129839624,
+      "r2_tscv": 0.4341780313627851,
+      "r2_tscv_std": 0.288209878251089,
+      "r2_kfold": 0.5304865661860169,
+      "r2_kfold_std": 0.1976407980473185
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Embeddings cold-start (solo content MLP) para items 2017+.",
+    "timestamp": "2026-06-11 21:52"
+  },
+  {
+    "model_id": "33_metascore",
+    "model_name": "CatBoost RS v2 + Meta5 + Metascore",
+    "features": "RS v2 (64d) + meta5 (5d) + metascore steam (2d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.422032697301447,
+      "rmse_temporal": 1001.647453585534,
+      "mae_temporal": 151.11588724331725,
+      "mape_temporal": 8.662823580348208,
+      "spearman_temporal": 0.5126733892638324,
+      "r2_tscv": 0.5559717771761683,
+      "r2_tscv_std": 0.3332074411982087,
+      "r2_kfold": 0.6620358016112787,
+      "r2_kfold_std": 0.10619408816442244
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798.",
+    "timestamp": "2026-06-11 21:55"
+  },
+  {
+    "model_id": "33_devrep",
+    "model_name": "CatBoost RS v2 + Meta5 + DevRep temporal",
+    "features": "RS v2 (64d) + meta5 (5d) + dev_rep temporal (2d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.317359955148626,
+      "rmse_temporal": 1088.5769570822015,
+      "mae_temporal": 158.98327734279894,
+      "mape_temporal": 8.447352617625949,
+      "spearman_temporal": 0.5343621624617029,
+      "r2_tscv": 0.5345262498935678,
+      "r2_tscv_std": 0.31240371384860754,
+      "r2_kfold": 0.6722033596199812,
+      "r2_kfold_std": 0.12662266915430515
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. dev_rep limpia: solo juegos pre-2017 del dev, excluye el propio juego.",
+    "timestamp": "2026-06-11 21:57"
+  },
+  {
+    "model_id": "33_meta_plus",
+    "model_name": "CatBoost RS v2 + Meta5 + Metascore + DevRep",
+    "features": "RS v2 (64d) + meta5 (5d) + metascore (2d) + dev_rep (2d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.2533999652959339,
+      "rmse_temporal": 1138.4324312436668,
+      "mae_temporal": 168.8630304920375,
+      "mape_temporal": 8.346856015656657,
+      "spearman_temporal": 0.4768305344436811,
+      "r2_tscv": 0.5113406511697949,
+      "r2_tscv_std": 0.3144145349537198,
+      "r2_kfold": 0.6247087166016783,
+      "r2_kfold_std": 0.10215925488493408
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798.",
+    "timestamp": "2026-06-11 22:02"
+  },
+  {
+    "model_id": "34_05_v3",
+    "model_name": "CatBoost RS content-aug v3 (uniform_pre2016) + Meta5",
+    "features": "RS v3 uniform_pre2016 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.22336996805722198,
+      "rmse_temporal": 1161.1019291712942,
+      "mae_temporal": 187.19843810162726,
+      "mape_temporal": 12.126480401390948,
+      "spearman_temporal": 0.4939559582460451,
+      "r2_tscv": 0.6900444712335518,
+      "r2_tscv_std": 0.2554339283738994,
+      "r2_kfold": 0.7543755386529387,
+      "r2_kfold_std": 0.055788555931416586
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. tower_v3 fixes: tfidf pre-2016, val con negativos, neg=uniform_pre2016. best_val=0.4077",
+    "timestamp": "2026-06-11 22:02"
+  },
+  {
+    "model_id": "33b_ens",
+    "model_name": "Ensemble Cat+XGB (peso en val) + Meta5",
+    "features": "RS content-aug v2 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.3765031395008943,
+      "rmse_temporal": 1040.3522047759363,
+      "mae_temporal": 168.6871522366001,
+      "spearman_temporal": 0.463960328450818
+    },
+    "notes": "w_cat=0.8 elegido en val temporal interna. Fix del leak de seleccion de 33_ens.",
+    "timestamp": "2026-06-11 22:07"
+  },
+  {
+    "model_id": "33b_all_cs",
+    "model_name": "CatBoost RS v2 all-cold-start + Meta5",
+    "features": "RS v2 cs-only (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.19104317953111882,
+      "rmse_temporal": 1185.0206732171541,
+      "mae_temporal": 181.072087261356,
+      "mape_temporal": 10.664964371596358,
+      "spearman_temporal": 0.5466759738926056,
+      "r2_tscv": 0.3454439207301191,
+      "r2_tscv_std": 0.14753333754270964,
+      "r2_kfold": 0.3169637826364784,
+      "r2_kfold_std": 0.14764277246499372
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Embeddings content-MLP-only para train y test (deployment-honesto, sin mismatch std/cs).",
+    "timestamp": "2026-06-11 22:09"
+  },
+  {
+    "model_id": "34_05_v3w",
+    "model_name": "CatBoost RS content-aug v3 (pop075) + Meta5",
+    "features": "RS v3 pop075 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.09635118839572343,
+      "rmse_temporal": 1252.457787027033,
+      "mae_temporal": 222.97869500423457,
+      "mape_temporal": 12.007588913366265,
+      "spearman_temporal": 0.37063124781306156,
+      "r2_tscv": 0.506539865974811,
+      "r2_tscv_std": 0.3024638467830228,
+      "r2_kfold": 0.5684271884900582,
+      "r2_kfold_std": 0.06270792307469455
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. tower_v3 fixes: tfidf pre-2016, val con negativos, neg=pop075. best_val=0.6138",
+    "timestamp": "2026-06-11 22:18"
+  },
+  {
+    "model_id": "36_v2rep_s42",
+    "model_name": "CatBoost RS v2rep seed=42 + Meta5",
+    "features": "RS v2rep seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.253853645210414,
+      "rmse_temporal": 1138.0864880413476,
+      "mae_temporal": 181.53510359648575,
+      "mape_temporal": 11.780111908743088,
+      "spearman_temporal": 0.4322203541159109,
+      "r2_tscv": 0.4170245938650658,
+      "r2_tscv_std": 0.3835599189919562,
+      "r2_kfold": 0.5821875803271045,
+      "r2_kfold_std": 0.0964283236074164
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v2rep. best_val=0.3260 epochs=8",
+    "timestamp": "2026-06-11 22:36"
+  },
+  {
+    "model_id": "36_v2rep_s123",
+    "model_name": "CatBoost RS v2rep seed=123 + Meta5",
+    "features": "RS v2rep seed123 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.22023181071766162,
+      "rmse_temporal": 1163.4454176925462,
+      "mae_temporal": 199.76648645391148,
+      "mape_temporal": 11.633030297517127,
+      "spearman_temporal": 0.401583284754683,
+      "r2_tscv": 0.5709682061870338,
+      "r2_tscv_std": 0.3621598598753585,
+      "r2_kfold": 0.6829980135446846,
+      "r2_kfold_std": 0.06921919438467308
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v2rep. best_val=0.3253 epochs=9",
+    "timestamp": "2026-06-11 22:51"
+  },
+  {
+    "model_id": "36_v2rep_s777",
+    "model_name": "CatBoost RS v2rep seed=777 + Meta5",
+    "features": "RS v2rep seed777 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.25297849564548525,
+      "rmse_temporal": 1138.7537190815801,
+      "mae_temporal": 184.85735019206572,
+      "mape_temporal": 10.813476267893737,
+      "spearman_temporal": 0.4718156495295605,
+      "r2_tscv": 0.5802670326101828,
+      "r2_tscv_std": 0.37844485894179747,
+      "r2_kfold": 0.6234549411804962,
+      "r2_kfold_std": 0.17348698938444557
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v2rep. best_val=0.3285 epochs=9",
+    "timestamp": "2026-06-11 23:08"
+  },
+  {
+    "model_id": "36_v2rep_s2024",
+    "model_name": "CatBoost RS v2rep seed=2024 + Meta5",
+    "features": "RS v2rep seed2024 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.2068211980314275,
+      "rmse_temporal": 1173.4073544650605,
+      "mae_temporal": 203.75184796637618,
+      "mape_temporal": 14.871007628096466,
+      "spearman_temporal": 0.4176554200538589,
+      "r2_tscv": 0.48900258213216835,
+      "r2_tscv_std": 0.3638499034416857,
+      "r2_kfold": 0.5971657598243957,
+      "r2_kfold_std": 0.09710750806431064
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v2rep. best_val=0.3235 epochs=9",
+    "timestamp": "2026-06-11 23:23"
+  },
+  {
+    "model_id": "36_v2rep_s31337",
+    "model_name": "CatBoost RS v2rep seed=31337 + Meta5",
+    "features": "RS v2rep seed31337 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.24877857728316766,
+      "rmse_temporal": 1141.9503935749074,
+      "mae_temporal": 186.71500950238624,
+      "mape_temporal": 10.428781297306946,
+      "spearman_temporal": 0.4849713326905053,
+      "r2_tscv": 0.5416195210744875,
+      "r2_tscv_std": 0.3566756760898247,
+      "r2_kfold": 0.6203652374923257,
+      "r2_kfold_std": 0.14653419321849032
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v2rep. best_val=0.3249 epochs=9",
+    "timestamp": "2026-06-11 23:38"
+  },
+  {
+    "model_id": "36_v2rep_embavg",
+    "model_name": "CatBoost RS v2rep emb-avg 5 seeds + Meta5",
+    "features": "RS v2rep promedio 5 seeds (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.25149577406419843,
+      "rmse_temporal": 1139.8832834285372,
+      "mae_temporal": 182.93468840868732,
+      "mape_temporal": 11.000849473284513,
+      "spearman_temporal": 0.45844530560791363,
+      "r2_tscv": 0.551188149305387,
+      "r2_tscv_std": 0.39648845094322965,
+      "r2_kfold": 0.6409969383375842,
+      "r2_kfold_std": 0.09556689074664408
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798.",
+    "timestamp": "2026-06-11 23:40"
+  },
+  {
+    "model_id": "36_v2rep_summary",
+    "model_name": "Multi-seed v2rep (5 seeds) resumen",
+    "features": "RS (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.23653274537763122,
+      "r2_temporal_std": 0.021615579962395593,
+      "rmse_temporal": 1151.1286745710884,
+      "spearman_temporal": 0.44164920822890374,
+      "r2_tscv": 0.5197763871737877
+    },
+    "notes": "Media seeds [42, 123, 777, 2024, 31337]. min=0.2068 max=0.2539. emb_avg R2=0.2515",
+    "timestamp": "2026-06-11 23:40"
+  },
+  {
+    "model_id": "36_v3_s42",
+    "model_name": "CatBoost RS v3 seed=42 + Meta5",
+    "features": "RS v3 seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.22336996805722198,
+      "rmse_temporal": 1161.1019291712942,
+      "mae_temporal": 187.19843810162726,
+      "mape_temporal": 12.126480401390948,
+      "spearman_temporal": 0.4939559582460451,
+      "r2_tscv": 0.6900444712335518,
+      "r2_tscv_std": 0.2554339283738994,
+      "r2_kfold": 0.7543755386529387,
+      "r2_kfold_std": 0.055788555931416586
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v3. best_val=0.4077 epochs=10",
+    "timestamp": "2026-06-11 23:56"
+  },
+  {
+    "model_id": "36_v3_s123",
+    "model_name": "CatBoost RS v3 seed=123 + Meta5",
+    "features": "RS v3 seed123 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.20725508986868701,
+      "rmse_temporal": 1173.0863666132993,
+      "mae_temporal": 186.14151670429214,
+      "mape_temporal": 11.591822006830453,
+      "spearman_temporal": 0.5007737522319842,
+      "r2_tscv": 0.7002298904027727,
+      "r2_tscv_std": 0.24775077671932758,
+      "r2_kfold": 0.692365830217404,
+      "r2_kfold_std": 0.09123301590530754
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v3. best_val=0.4069 epochs=9",
+    "timestamp": "2026-06-12 00:11"
+  },
+  {
+    "model_id": "36_v3_s777",
+    "model_name": "CatBoost RS v3 seed=777 + Meta5",
+    "features": "RS v3 seed777 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.22294306696684962,
+      "rmse_temporal": 1161.4210048969817,
+      "mae_temporal": 187.04680719611687,
+      "mape_temporal": 12.719618816485843,
+      "spearman_temporal": 0.484732504010905,
+      "r2_tscv": 0.7420301292288085,
+      "r2_tscv_std": 0.26623910682693813,
+      "r2_kfold": 0.7845878138809503,
+      "r2_kfold_std": 0.08117120891909095
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v3. best_val=0.4064 epochs=10",
+    "timestamp": "2026-06-12 00:28"
+  },
+  {
+    "model_id": "36_v3_s2024",
+    "model_name": "CatBoost RS v3 seed=2024 + Meta5",
+    "features": "RS v3 seed2024 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.19908938836057322,
+      "rmse_temporal": 1179.1126001555622,
+      "mae_temporal": 187.50071521844436,
+      "mape_temporal": 11.794963561633326,
+      "spearman_temporal": 0.49057879888379174,
+      "r2_tscv": 0.6058488233121503,
+      "r2_tscv_std": 0.2736908208113983,
+      "r2_kfold": 0.6855723929253671,
+      "r2_kfold_std": 0.07369950275839382
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v3. best_val=0.4080 epochs=9",
+    "timestamp": "2026-06-12 00:44"
+  },
+  {
+    "model_id": "36_v3_s31337",
+    "model_name": "CatBoost RS v3 seed=31337 + Meta5",
+    "features": "RS v3 seed31337 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.24389321050716606,
+      "rmse_temporal": 1145.6575600540077,
+      "mae_temporal": 190.65068361490546,
+      "mape_temporal": 12.195988259792731,
+      "spearman_temporal": 0.5090777647579695,
+      "r2_tscv": 0.7269147066356458,
+      "r2_tscv_std": 0.319197702399075,
+      "r2_kfold": 0.7904006209331532,
+      "r2_kfold_std": 0.09337528603570942
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Multi-seed v3. best_val=0.4075 epochs=10",
+    "timestamp": "2026-06-12 01:01"
+  },
+  {
+    "model_id": "36_v3_embavg",
+    "model_name": "CatBoost RS v3 emb-avg 5 seeds + Meta5",
+    "features": "RS v3 promedio 5 seeds (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.15727716380185208,
+      "rmse_temporal": 1209.499345552068,
+      "mae_temporal": 193.8820095530815,
+      "mape_temporal": 11.454878331940163,
+      "spearman_temporal": 0.4481502656164,
+      "r2_tscv": 0.7101494524844425,
+      "r2_tscv_std": 0.2610461204332765,
+      "r2_kfold": 0.7742158137293197,
+      "r2_kfold_std": 0.08191644689064599
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798.",
+    "timestamp": "2026-06-12 01:06"
+  },
+  {
+    "model_id": "36_v3_summary",
+    "model_name": "Multi-seed v3 (5 seeds) resumen",
+    "features": "RS (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.2193101447520996,
+      "r2_temporal_std": 0.01723521647886026,
+      "rmse_temporal": 1164.075892178229,
+      "spearman_temporal": 0.4958237556261391,
+      "r2_tscv": 0.6930136041625858
+    },
+    "notes": "Media seeds [42, 123, 777, 2024, 31337]. min=0.1991 max=0.2439. emb_avg R2=0.1573",
+    "timestamp": "2026-06-12 01:06"
+  },
+  {
+    "model_id": "35_cs20",
+    "model_name": "CatBoost RS v3 cs_drop=0.2 + Meta5",
+    "features": "RS v3 cs0.2 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.21113819939531087,
+      "rmse_temporal": 1170.2097699214617,
+      "mae_temporal": 179.63050867812467,
+      "mape_temporal": 12.31116093550862,
+      "spearman_temporal": 0.47936699983974035,
+      "r2_tscv": 0.7523443860867377,
+      "r2_tscv_std": 0.2717095770134247,
+      "r2_kfold": 0.7825146598289019,
+      "r2_kfold_std": 0.08354971246036788
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Sweep fino. best_val=0.4073 epochs=10",
+    "timestamp": "2026-06-12 01:23"
+  },
+  {
+    "model_id": "35_cs25",
+    "model_name": "CatBoost RS v3 cs_drop=0.25 + Meta5",
+    "features": "RS v3 cs0.25 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.2084688070551176,
+      "rmse_temporal": 1172.188006716959,
+      "mae_temporal": 186.55106029146452,
+      "mape_temporal": 12.219467865889255,
+      "spearman_temporal": 0.5128246347256169,
+      "r2_tscv": 0.7822022834496763,
+      "r2_tscv_std": 0.24477671830591516,
+      "r2_kfold": 0.7979798317382913,
+      "r2_kfold_std": 0.08053239137576912
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Sweep fino. best_val=0.4075 epochs=10",
+    "timestamp": "2026-06-12 01:41"
+  },
+  {
+    "model_id": "35_cs35",
+    "model_name": "CatBoost RS v3 cs_drop=0.35 + Meta5",
+    "features": "RS v3 cs0.35 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.2190278770105104,
+      "rmse_temporal": 1164.3432299714082,
+      "mae_temporal": 182.92433202799674,
+      "mape_temporal": 11.042539163779145,
+      "spearman_temporal": 0.4883070223295133,
+      "r2_tscv": 0.7612627435142864,
+      "r2_tscv_std": 0.25200045849344277,
+      "r2_kfold": 0.7791909107363374,
+      "r2_kfold_std": 0.075455929964828
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Sweep fino. best_val=0.4082 epochs=10",
+    "timestamp": "2026-06-12 01:59"
+  },
+  {
+    "model_id": "35_cs40",
+    "model_name": "CatBoost RS v3 cs_drop=0.4 + Meta5",
+    "features": "RS v3 cs0.4 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.23043400795447855,
+      "rmse_temporal": 1155.8093147108846,
+      "mae_temporal": 177.5757110373979,
+      "mape_temporal": 10.99493049061155,
+      "spearman_temporal": 0.5334646964325588,
+      "r2_tscv": 0.7788693833000677,
+      "r2_tscv_std": 0.2727864190942617,
+      "r2_kfold": 0.7729456809246351,
+      "r2_kfold_std": 0.08615721333694096
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Sweep fino. best_val=0.4089 epochs=10",
+    "timestamp": "2026-06-12 02:16"
+  },
+  {
+    "model_id": "38_v2exact_s42",
+    "model_name": "CatBoost RS v2exact (fit transductivo) seed=42 + Meta5",
+    "features": "RS v2exact seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.34043441518612383,
+      "rmse_temporal": 1070.0208733526608,
+      "mae_temporal": 174.6501266252568,
+      "mape_temporal": 10.0031618265886,
+      "spearman_temporal": 0.40382603583951865,
+      "r2_tscv": 0.4341780313627851,
+      "r2_tscv_std": 0.288209878251089,
+      "r2_kfold": 0.553678977383192,
+      "r2_kfold_std": 0.1504132002292154
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. 38_: TF-IDF y z-score fiteados sobre TODOS los items (replica exacta de 23_). best_val=0.3261",
+    "timestamp": "2026-06-12 02:42"
+  },
+  {
+    "model_id": "38_v2exact_s123",
+    "model_name": "CatBoost RS v2exact (fit transductivo) seed=123 + Meta5",
+    "features": "RS v2exact seed123 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.15175224148913902,
+      "rmse_temporal": 1213.4576298726179,
+      "mae_temporal": 202.30595942381026,
+      "mape_temporal": 14.98513567234016,
+      "spearman_temporal": 0.3755363791460892,
+      "r2_tscv": 0.4631300273346612,
+      "r2_tscv_std": 0.3647936901850502,
+      "r2_kfold": 0.5259978235190875,
+      "r2_kfold_std": 0.2915854710520152
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. 38_: TF-IDF y z-score fiteados sobre TODOS los items (replica exacta de 23_). best_val=0.3235",
+    "timestamp": "2026-06-12 02:56"
+  },
+  {
+    "model_id": "37_minilm",
+    "model_name": "CatBoost RS v3-MiniLM + Meta5",
+    "features": "RS v3 MiniLM-384 content (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.1950776934754146,
+      "rmse_temporal": 1182.0619501590934,
+      "mae_temporal": 193.12102287228151,
+      "mape_temporal": 10.302535197198853,
+      "spearman_temporal": 0.44014199134646337,
+      "r2_tscv": 0.75599618643532,
+      "r2_tscv_std": 0.2520682008835062,
+      "r2_kfold": 0.7868774101910122,
+      "r2_kfold_std": 0.08705478294217373
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Content tower con all-MiniLM-L6-v2 en vez de TF-IDF. best_val=0.4079",
+    "timestamp": "2026-06-12 03:12"
+  },
+  {
+    "model_id": "39_content_s42",
+    "model_name": "Contenido-puro meta5+RAWG (tuning seed 42)",
+    "features": "meta5 (5d) + rawg (11d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.3008447167120898,
+      "rmse_temporal": 1101.6663348534366,
+      "mae_temporal": 177.27275050512756,
+      "mape_temporal": 11.643775999094428,
+      "spearman_temporal": 0.5071936833289102,
+      "r2_tscv": 0.004893893363605779,
+      "r2_tscv_std": 0.3496361198971703,
+      "r2_kfold": 0.29779869439282036,
+      "r2_kfold_std": 0.1115406941590818
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Barras de error del baseline sin RS.",
+    "timestamp": "2026-06-12 03:15"
+  },
+  {
+    "model_id": "39_rsfix_s42",
+    "model_name": "RS v3-s42 fijo + meta5 (tuning seed 42)",
+    "features": "RS v3 seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.22336996805722198,
+      "rmse_temporal": 1161.1019291712942,
+      "mae_temporal": 187.19843810162726,
+      "mape_temporal": 12.126480401390948,
+      "spearman_temporal": 0.4939559582460451,
+      "r2_tscv": 0.6900444712335518,
+      "r2_tscv_std": 0.2554339283738994,
+      "r2_kfold": 0.7543755386529387,
+      "r2_kfold_std": 0.055788555931416586
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Varianza downstream-only (embeddings fijos).",
+    "timestamp": "2026-06-12 03:16"
+  },
+  {
+    "model_id": "39_content_s123",
+    "model_name": "Contenido-puro meta5+RAWG (tuning seed 123)",
+    "features": "meta5 (5d) + rawg (11d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.2739742995648047,
+      "rmse_temporal": 1122.636746607262,
+      "mae_temporal": 176.7415837927101,
+      "mape_temporal": 10.966094526410576,
+      "spearman_temporal": 0.5210492293628247,
+      "r2_tscv": 0.10394885376648763,
+      "r2_tscv_std": 0.284318476037489,
+      "r2_kfold": 0.20680656504808112,
+      "r2_kfold_std": 0.09650704456312581
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Barras de error del baseline sin RS.",
+    "timestamp": "2026-06-12 03:17"
+  },
+  {
+    "model_id": "39_rsfix_s123",
+    "model_name": "RS v3-s42 fijo + meta5 (tuning seed 123)",
+    "features": "RS v3 seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.3052838285606745,
+      "rmse_temporal": 1098.1633881088537,
+      "mae_temporal": 183.72499567335132,
+      "mape_temporal": 11.106216723634816,
+      "spearman_temporal": 0.47356679235970794,
+      "r2_tscv": 0.6880775659212113,
+      "r2_tscv_std": 0.2712382923555609,
+      "r2_kfold": 0.7332722064691362,
+      "r2_kfold_std": 0.0536321349713588
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Varianza downstream-only (embeddings fijos).",
+    "timestamp": "2026-06-12 03:19"
+  },
+  {
+    "model_id": "39_content_s777",
+    "model_name": "Contenido-puro meta5+RAWG (tuning seed 777)",
+    "features": "meta5 (5d) + rawg (11d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.296494807379168,
+      "rmse_temporal": 1105.0881197551344,
+      "mae_temporal": 173.49515434416782,
+      "mape_temporal": 11.678261284304126,
+      "spearman_temporal": 0.5435128699765257,
+      "r2_tscv": 0.19364186842372563,
+      "r2_tscv_std": 0.13677072875739227,
+      "r2_kfold": 0.2685231573635324,
+      "r2_kfold_std": 0.10899685638271421
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Barras de error del baseline sin RS.",
+    "timestamp": "2026-06-12 03:21"
+  },
+  {
+    "model_id": "39_rsfix_s777",
+    "model_name": "RS v3-s42 fijo + meta5 (tuning seed 777)",
+    "features": "RS v3 seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.1535371658796889,
+      "rmse_temporal": 1212.1802491114522,
+      "mae_temporal": 192.9211164389497,
+      "mape_temporal": 11.271904530320612,
+      "spearman_temporal": 0.4986396031975613,
+      "r2_tscv": 0.7425732898157669,
+      "r2_tscv_std": 0.2541187995710563,
+      "r2_kfold": 0.7542460687328375,
+      "r2_kfold_std": 0.08214708035584145
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Varianza downstream-only (embeddings fijos).",
+    "timestamp": "2026-06-12 03:24"
+  },
+  {
+    "model_id": "39_content_s2024",
+    "model_name": "Contenido-puro meta5+RAWG (tuning seed 2024)",
+    "features": "meta5 (5d) + rawg (11d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.21075247362325333,
+      "rmse_temporal": 1170.4958307389927,
+      "mae_temporal": 189.4658033382446,
+      "mape_temporal": 11.056600915344102,
+      "spearman_temporal": 0.4867038253884732,
+      "r2_tscv": 0.1949645541151859,
+      "r2_tscv_std": 0.140941231303157,
+      "r2_kfold": 0.15291659198875832,
+      "r2_kfold_std": 0.18163555439168028
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Barras de error del baseline sin RS.",
+    "timestamp": "2026-06-12 03:25"
+  },
+  {
+    "model_id": "39_rsfix_s2024",
+    "model_name": "RS v3-s42 fijo + meta5 (tuning seed 2024)",
+    "features": "RS v3 seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.20905674341812874,
+      "rmse_temporal": 1171.7525848513835,
+      "mae_temporal": 181.40334546303686,
+      "mape_temporal": 11.12246626675447,
+      "spearman_temporal": 0.5251407075195925,
+      "r2_tscv": 0.7672803186342757,
+      "r2_tscv_std": 0.27780780926070575,
+      "r2_kfold": 0.7991117288166525,
+      "r2_kfold_std": 0.10404978822119695
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Varianza downstream-only (embeddings fijos).",
+    "timestamp": "2026-06-12 03:31"
+  },
+  {
+    "model_id": "39_content_s31337",
+    "model_name": "Contenido-puro meta5+RAWG (tuning seed 31337)",
+    "features": "meta5 (5d) + rawg (11d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.2887175068958805,
+      "rmse_temporal": 1111.1797445000523,
+      "mae_temporal": 174.25983704568964,
+      "mape_temporal": 12.399727377949251,
+      "spearman_temporal": 0.5191009126153783,
+      "r2_tscv": 0.25302157987200086,
+      "r2_tscv_std": 0.09799296783670439,
+      "r2_kfold": 0.327340535679861,
+      "r2_kfold_std": 0.07991170349915525
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Barras de error del baseline sin RS.",
+    "timestamp": "2026-06-12 03:32"
+  },
+  {
+    "model_id": "39_rsfix_s31337",
+    "model_name": "RS v3-s42 fijo + meta5 (tuning seed 31337)",
+    "features": "RS v3 seed42 (64d) + meta5 (5d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.24700387333804408,
+      "rmse_temporal": 1143.2984836869648,
+      "mae_temporal": 189.4401316068307,
+      "mape_temporal": 11.583446909449922,
+      "spearman_temporal": 0.47748582511942445,
+      "r2_tscv": 0.608820483508138,
+      "r2_tscv_std": 0.2722783028463928,
+      "r2_kfold": 0.7141967217027807,
+      "r2_kfold_std": 0.041220070940712755
+    },
+    "notes": "v2 cutoff2017 CatBoost(RMSE) train=10551 test=4798. Varianza downstream-only (embeddings fijos).",
+    "timestamp": "2026-06-12 03:34"
+  },
+  {
+    "model_id": "39_content_summary",
+    "model_name": "Barras de error content (5 tuning seeds)",
+    "features": "meta5+rawg (16d)",
+    "embeddings": "",
+    "metrics": {
+      "r2_temporal": 0.27415676083503926,
+      "r2_temporal_std": 0.0368896583309643,
+      "spearman_temporal": 0.5155121041344224,
+      "r2_tscv": 0.1500941499082012
+    },
+    "notes": "5 reps tuning seeds [42, 123, 777, 2024, 31337]. min=0.2108 max=0.3008",
+    "timestamp": "2026-06-12 03:34"
+  },
+  {
+    "model_id": "39_rs_fixed_summary",
+    "model_name": "Barras de error rs_fixed (5 tuning seeds)",
+    "features": "RS v3 s42 + meta5 (69d)",
+    "embeddings": "v2_global",
+    "metrics": {
+      "r2_temporal": 0.22765031585075163,
+      "r2_temporal_std": 0.0553586573960426,
+      "spearman_temporal": 0.4937577772884663,
+      "r2_tscv": 0.6993592258225888
+    },
+    "notes": "5 reps tuning seeds [42, 123, 777, 2024, 31337]. min=0.1535 max=0.3053",
+    "timestamp": "2026-06-12 03:34"
   }
 ]

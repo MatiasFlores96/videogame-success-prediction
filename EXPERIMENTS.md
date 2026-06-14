@@ -108,7 +108,7 @@ La mejora espectacular anteriormente reportada (R²_log=0.254) era un artefacto 
 
 | Notebook | Descripción |
 |----------|-------------|
-| `01_data_preprocessing.ipynb` | Limpieza de datos Steam, australianos, RAWG |
+| `01_generate_dataset.ipynb` | Limpieza de datos Steam, australianos, RAWG |
 | `02_model_keras_rs.ipynb` | Two-Tower CF con Keras/JAX. Genera embeddings 64d |
 | `02b_cold_start_embeddings.ipynb` | Cold-start: k-NN + RAWG features + developer_reputation |
 | `03_regressor_embeddings_only.ipynb` | Modelo 03 |
@@ -770,3 +770,264 @@ El log-transform colapsa el R² en escala original del modelo principal de **0.4
 Log-transform descartado como métrica principal. Se mantiene la escala original (R²=0.407, RMSE=1015) como resultado definitivo del proyecto. El script 31 sirve como robustness check que confirma la solidez del baseline sin transformar.
 
 *Última actualización: 2026-05-27 (script 31 — log-transform CatBoost, conclusión definitiva)*
+
+---
+
+# AUDITORÍA DE ROBUSTEZ (Scripts 32–39)
+
+*Realizada: 2026-06-11/12*
+
+Antes de la entrega se hizo una auditoría completa del resultado principal
+(24_05_cat, R²=0.407): leakage en metadata, varianza estocástica, fixes
+metodológicos del Two-Tower y barras de error en ambos lados de la comparación
+RS vs contenido. **El resultado de la auditoría revisa las conclusiones del
+proyecto** — ver "Conclusión Final Revisada" al final.
+
+Infraestructura nueva: `v2_data.py` (módulo compartido de datos/features/eval,
+agrega Spearman a las métricas) y `tower_v3.py` (entrenamiento del Two-Tower
+parametrizado: cs_drop, seed, neg_mode, val_mode, fit_scope).
+
+---
+
+## Script 32/32b — Auditoría de leakage en metadata
+
+**Archivos**: `32_audit_has_senti.py`, `32b_audit_followup.py`
+
+**Disparador**: el campo `sentiment` de steam_games.json (snapshot ~2018)
+incluye valores como "1 user reviews", "2 user reviews" — codifica el conteo de
+reviews acumuladas. `has_senti` (sentiment no-nulo) está en los 6d de metadata
+del modelo principal y para items de test 2017+ es información posterior al cutoff.
+
+### Resultados
+
+| Check | Resultado |
+|-------|-----------|
+| SHAP de has_senti en 24_05_cat | **0.000 exacto, rank 70/70** — el modelo nunca lo usó |
+| Re-tune sin has_senti (24_05_cat_clean) | R²=0.3404 (−0.066 vs 0.4067) |
+| Mismos hiperparámetros, 69d | R²=0.3512 (predicciones difieren: el RNG de CatBoost cambia con el nro de columnas) |
+| Feature #1 del modelo | **num_tags: SHAP=159.9 (12.8% del total)** — soft-leakage (los tags se acumulan; snapshot 2018) |
+| Sin num_tags (24_05_cat_no_nt) | R²=0.3060 |
+| Meta estricta sin canales snapshot (24_05_cat_strict) | R²=0.3004 |
+
+### Conclusiones del 32/32b
+1. El modelo principal **no explotó** has_senti (SHAP=0) — la caída al re-tunear
+   es varianza de Optuna/CatBoost, no efecto causal.
+2. Esa varianza (~±0.05 R² al cambiar una columna inerte) pasó a ser el hallazgo
+   central: las comparaciones finas del proyecto necesitan barras de error.
+3. num_tags es soft-leakage real que el modelo SÍ usa; su costo de ablación
+   (≤0.04) queda dentro del ruido.
+
+---
+
+## Script 33/33b — Variantes downstream (todas con meta5, sin has_senti)
+
+**Archivos**: `33_catboost_variants.py`, `33b_ensemble_fix.py`
+
+| Variante | R² | RMSE | Spearman | Lectura |
+|----------|-----|------|----------|---------|
+| 33_ens (peso elegido en test) | 0.4378 | 987.86 | 0.524 | ❌ Leak de selección |
+| **33b_ens (peso en validación)** | **0.3765** | 1040.35 | 0.464 | Versión honesta |
+| 33_metascore (+metascore Steam) | 0.4220 | 1001.65 | 0.513 | Mejora aparente (1 corrida) |
+| 33_devrep (+dev_rep temporal limpia) | 0.3174 | 1088.58 | 0.534 | Sin ganancia clara |
+| 33_tweedie | 0.2451 | 1144.75 | **0.5727** | Mejor Spearman del proyecto |
+| 33_poisson | −0.0150 | colapsó | — | Var=media no banca sobredispersión |
+| 33_meta_plus (metascore+devrep) | 0.2534 | 1138.43 | 0.477 | Más features = peor |
+| 33_mixed (std train / cs test) | 0.0762 | 1266.32 | 0.398 | Mide mismatch, no deployment |
+| 33b_all_cs (cs para todos) | 0.1910 | 1185.02 | **0.5467** | Deployment honesto: ranking casi intacto |
+
+Notas:
+- `33b_all_cs` es la evaluación deployment-honesta (juegos nuevos solo tienen
+  content MLP): el R² cae pero el **ranking se mantiene** (ρ=0.547).
+- Tweedie optimiza otro trade-off: pierde R² (escala), gana ranking y
+  within-distribution (TSCV 0.61, KFold 0.68).
+- dev_rep ahora se computa LIMPIA (`v2_data.build_dev_rep`): solo juegos
+  pre-2017 del developer, excluyendo el propio juego por item_idx
+  (fix del bug de 18_ donde `train_mask[idx] or True` era siempre True).
+
+---
+
+## Script 34 — Two-Tower v3: fixes metodológicos
+
+**Archivos**: `tower_v3.py`, `34_train_rs_content_v3.py`
+
+Tres fixes sobre 23_:
+1. **TF-IDF del tower fiteado solo en items pre-2016** (23_ fiteaba sobre los
+   15,380 incluyendo test: fit transductivo). Ídem z-score de columnas numéricas.
+2. **val_loss con negativos sampleados** (23_ usaba BCE solo de positivos —
+   criterio de checkpoint degenerado).
+3. **Negative sampling restringido a items pre-2016** (en 23_ los items de test
+   aparecían como negativos).
+
+También se corrigió un bug de parseo de fechas (pandas 2.x column-wise infiere
+un solo formato y coercea el resto a NaT: 2,669 vs 6,953 items pre-2016 —
+verificado contra la tabla de 30_).
+
+### Resultados (seed 42)
+
+| Modelo | R² | TSCV | KFold | Spearman |
+|--------|-----|------|-------|----------|
+| 24_05_cat_clean (v2, emb originales) | 0.340 | 0.434 | 0.554 | 0.404 |
+| **34_05_v3** (fixes) | 0.223 | **0.690** | **0.754** | 0.494 |
+| 34_05_v3w (negativos pop^0.75) | 0.096 | 0.506 | 0.568 | 0.371 |
+
+### Hallazgos
+1. **Los negativos ponderados por popularidad LASTIMAN**: usar juegos populares
+   como negativos enseña al tower a descartar la señal de popularidad — exactamente
+   lo que el downstream necesita.
+2. **El val-loss "degenerado" de 23_ era una feature accidental**: seleccionaba
+   checkpoints cuyos item embeddings puntúan alto contra la masa de usuarios —
+   embeddings que codifican popularidad global. El criterio limpio selecciona
+   discriminación de recomendación → mejor within-distribution (TSCV/KFold récord),
+   peor temporal puntual.
+
+---
+
+## Script 35 — Sweep fino de CS_DROP (v3)
+
+**Archivo**: `35_cs_drop_fine_sweep.py`
+
+| CS_DROP | R² | Spearman | TSCV |
+|---------|-----|----------|------|
+| 0.20 | 0.211 | 0.479 | 0.752 |
+| 0.25 | 0.209 | 0.513 | 0.782 |
+| 0.30 (=34_05_v3) | 0.223 | 0.494 | 0.690 |
+| 0.35 | 0.219 | 0.488 | 0.761 |
+| 0.40 | 0.230 | 0.534 | 0.779 |
+
+**Conclusión**: meseta plana en [0.20, 0.40] — todas las diferencias dentro del
+ruido (σ≈0.017). El "óptimo 0.3" del sweep grueso de 25_ no es un pico; el
+contraste real es solo contra los extremos (0.0 y 1.0).
+
+---
+
+## Script 36 — Estabilidad multi-seed ⭐ (el experimento crítico)
+
+**Archivo**: `36_multiseed_stability.py`  
+5 seeds {42, 123, 777, 2024, 31337} × 2 configuraciones, tuning seed fijo (42):
+
+| Config | R² temporal | Spearman | TSCV |
+|--------|-------------|----------|------|
+| v2rep (réplica setup 23_: uniform_all + val legacy, fit pre-2016) | **0.2365 ± 0.0216** [0.21, 0.25] | 0.442 ± 0.036 | 0.520 |
+| v3 (fixes completos) | **0.2193 ± 0.0172** [0.20, 0.24] | **0.496 ± 0.009** | **0.693** |
+
+**El 0.407 publicado (y el 0.340 limpio) NO están dentro de la distribución
+multi-seed.** Además:
+- Promediar embeddings entre seeds NO funciona (espacios rotados no alineados):
+  v3 emb_avg R²=0.157, peor que cualquier seed individual.
+- El Spearman de v3 es notablemente estable (±0.009) — el entrenamiento limpio
+  produce calidad de ranking consistente.
+
+---
+
+## Script 38 — Diagnóstico del gap: ¿fit transductivo o suerte?
+
+**Archivo**: `38_diagnose_v2_gap.py`  
+Config "v2exact" = réplica EXACTA de 23_ (TF-IDF y z-score sobre todos los
+items + uniform_all + val legacy):
+
+| Corrida | R² |
+|---------|-----|
+| v2exact seed 42 | **0.3404** — idéntico a 4 decimales a 24_05_cat_clean (RMSE 1070.02, MAE 174.65, ρ 0.4038) |
+| v2exact seed 123 | **0.1518** |
+
+**Veredicto**:
+1. La reproducción exacta del seed 42 **valida bit-a-bit la infraestructura de
+   réplica** — los números del multi-seed son confiables.
+2. El fit transductivo NO da ventaja sistemática (media entre seeds ≈ la de
+   v2rep); lo que produce es varianza enorme (0.15 ↔ 0.34 cambiando el seed).
+3. **El 0.340/0.407 original fue una realización afortunada del tower**, amplificada
+   por el tuning afortunado con has_senti.
+
+---
+
+## Script 37 — Sentence embeddings (MiniLM) en el content tower
+
+**Archivo**: `37_sentence_embeddings.py`  
+all-MiniLM-L6-v2 (384d) sobre texto de tags+géneros, en lugar de TF-IDF (100d).
+
+| Modelo | R² | Spearman | TSCV | KFold |
+|--------|-----|----------|------|-------|
+| 37_minilm | 0.195 | 0.440 | 0.756 | 0.787 |
+| 34_05_v3 (TF-IDF, referencia) | 0.223 | 0.494 | 0.690 | 0.754 |
+
+**Conclusión**: equivalente dentro del ruido. El cuello de botella no es la
+representación semántica de los tags — resultado negativo documentable.
+
+---
+
+## Script 39 — Barras de error del baseline + descomposición de varianza
+
+**Archivo**: `39_baseline_errorbars.py`  
+5 tuning seeds (Optuna TPE + CatBoost random_seed) × 2 modelos:
+
+| Modelo | R² temporal | Spearman | TSCV |
+|--------|-------------|----------|------|
+| Contenido-puro (meta5 + RAWG, 16d) | **0.2742 ± 0.0369** [0.21, 0.30] | 0.516 ± 0.021 | 0.150 ± 0.097 |
+| RS v3-s42 fijo + meta5 (69d) | **0.2277 ± 0.0554** [0.15, 0.31] | 0.494 ± 0.021 | **0.699 ± 0.061** |
+
+### Descomposición de varianza del RS
+- Varianza por seed del tower (36_, tuning fijo): σ = 0.017
+- Varianza por seed de tuning (39_, tower fijo): σ = **0.055**
+- **El tuning downstream (Optuna/CatBoost) es la fuente dominante de varianza**,
+  no el entrenamiento del tower.
+
+---
+
+## Conclusión Final REVISADA del Proyecto
+
+### Tabla maestra (con barras de error)
+
+| Modelo | R² temporal | Spearman | TSCV | KFold |
+|--------|-------------|----------|------|-------|
+| Contenido-puro (meta5+RAWG) | **0.274 ± 0.037** | **0.516 ± 0.021** | 0.150 ± 0.097 | 0.33 |
+| RS content-aug v3 + meta5 | 0.22 ± 0.02 (tower) / ± 0.06 (tuning) | 0.494 ± 0.021 | **0.699 ± 0.061** | **0.75** |
+| RS all-cold-start (deployment) | 0.191 | 0.547 | 0.345 | 0.317 |
+| ~~24_05_cat (publicado)~~ | ~~0.407~~ → realización afortunada + tuning con has_senti | | | |
+
+### Respuesta revisada a la pregunta central
+
+> *¿Los embeddings de sistemas de recomendación mejoran la predicción de
+> popularidad de videojuegos?*
+
+**Depende del régimen — y la respuesta es ahora estadísticamente honesta:**
+
+1. **Extrapolación temporal (juegos 2017+ nunca vistos): NO.** Las bandas de
+   RS (0.23±0.06) y contenido-puro (0.27±0.04) se solapan; el contenido va
+   incluso levemente arriba. La ventaja temporal reportada originalmente
+   (+0.09) era una combinación de realización afortunada del tower y varianza
+   de tuning. Esto es coherente con la Fase 1: el cold-start es estructural —
+   la mitad colaborativa del embedding no puede ayudar a juegos sin historial.
+
+2. **Within-distribution (juegos con historial de interacciones): SÍ,
+   rotundamente.** TSCV 0.699±0.061 vs 0.150±0.097 (×4.7, bandas sin solape) y
+   KFold 0.75 vs 0.33. Para juegos del catálogo, la señal colaborativa es
+   transformadora.
+
+3. **Ranking (Spearman)**: empate técnico (~0.50 ambos) en temporal; el RS
+   deployment-honesto (all-cs) mantiene ρ=0.547 — para decisiones de
+   priorización el sistema es útil incluso en cold-start.
+
+### El sistema de dos etapas, ahora a escala global
+
+La conclusión de la Fase 1 (australiana) se confirma en el dataset global con
+rigor estadístico: **RS para el catálogo con historial, contenido para
+lanzamientos nuevos**. La arquitectura content-augmented no "resuelve" el
+cold-start — empaqueta la señal de contenido dentro del embedding (útil para
+servir un solo vector), pero no agrega información colaborativa donde no la hay.
+
+### Lecciones metodológicas (aporte de la tesis)
+
+1. **Una corrida no es un resultado**: la varianza estocástica total (~±0.06 R²)
+   superaba el efecto que se quería medir (+0.09). Multi-seed + barras de error
+   son obligatorios en pipelines embedding→GBM.
+2. **La fuente de varianza dominante es el tuning downstream**, no el deep
+   learning — donde la intuición suele apuntar al revés.
+3. **Tres capas de leakage detectadas y cuantificadas**: rawg_ratings_count
+   (duro, −0.29 R²), fit transductivo de TF-IDF/z-score (varianza, no sesgo),
+   metadata snapshot (has_senti inerte, num_tags ≤0.04).
+4. **Criterios de model selection importan**: el val_loss sin negativos de 23_
+   seleccionaba accidentalmente embeddings que codifican popularidad.
+5. **R² temporal con outliers extremos es una métrica frágil**; Spearman es
+   estable (±0.01-0.02) y debería acompañar siempre.
+
+*Última actualización: 2026-06-12 (scripts 32-39 — auditoría de robustez y conclusión revisada)*
